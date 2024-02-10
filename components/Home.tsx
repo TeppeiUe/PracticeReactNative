@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
-import { Text } from "react-native";
 import { openDatabase } from "react-native-sqlite-storage";
+import { Mountains } from "../models/ClimbingPlan";
+import { ListItem } from "@rneui/themed";
+import { ScrollView } from "react-native";
 
 export const Home = () => {
-  const [text, setText] = useState<string>('');
+  const [mountainList, setMountainList] = useState<Mountains[]>([]);
 
   useEffect(() => {
     const db = openDatabase({
@@ -20,12 +22,28 @@ export const Home = () => {
       tx.executeSql(
         query,
         params,
-        (tx, res) => setText(JSON.stringify(res.rows.raw())),
+        (tx, res) => setMountainList(res.rows.raw()),
         (tx, e) => console.error(e)
       );
     });
 
   }, []);
 
-  return <Text>{text}</Text>
+  return (
+    <ScrollView>
+      {mountainList.map(m => (
+        <ListItem
+          key={m.id}
+          onPress={() => console.log(m)}
+          bottomDivider
+        >
+          <ListItem.Content>
+            <ListItem.Title>{m.name}</ListItem.Title>
+            <ListItem.Subtitle>{JSON.parse(m.prefecture_id).join('-')}</ListItem.Subtitle>
+          </ListItem.Content>
+          <ListItem.Chevron />
+        </ListItem>
+      ))}
+    </ScrollView>
+  );
 };
