@@ -4,6 +4,7 @@ import { Home } from "./components/Home";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Mountains } from "./models/ClimbingPlan";
 import { Detail } from "./components/Detail";
+import { PrefecturesProvider } from "./hooks/PrefecturesProvider";
 
 export type RootStackParamList = {
   Home: undefined;
@@ -14,12 +15,14 @@ export const App = () => {
   const RootStack = createNativeStackNavigator<RootStackParamList>();
   return (
     <SafeAreaProvider>
-      <NavigationContainer>
-        <RootStack.Navigator initialRouteName='Home'>
-          <RootStack.Screen name='Home' component={Home} />
-          <RootStack.Screen name='Detail' component={Detail} />
-        </RootStack.Navigator>
-      </NavigationContainer>
+      <PrefecturesProvider>
+        <NavigationContainer>
+          <RootStack.Navigator initialRouteName='Home'>
+            <RootStack.Screen name='Home' component={Home} />
+            <RootStack.Screen name='Detail' component={Detail} />
+          </RootStack.Navigator>
+        </NavigationContainer>
+      </PrefecturesProvider>
     </SafeAreaProvider>
   );
 }

@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
-import { openDatabase } from "react-native-sqlite-storage";
 import { Mountains, db } from "../models/ClimbingPlan";
 import { ListItem } from "@rneui/themed";
 import { ScrollView } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../App";
+import { usePrefecturesContext } from "../hooks/PrefecturesContext";
 
 export const Home = ({ navigation }: NativeStackScreenProps<RootStackParamList, 'Home'>) => {
   const [mountainList, setMountainList] = useState<Mountains[]>([]);
+  const prefectures = usePrefecturesContext();
 
   useEffect(() => {
     db.transaction(tx => {
@@ -33,7 +34,14 @@ export const Home = ({ navigation }: NativeStackScreenProps<RootStackParamList, 
         >
           <ListItem.Content>
             <ListItem.Title>{mountain.name}</ListItem.Title>
-            <ListItem.Subtitle>{JSON.parse(mountain.prefecture_id).join('-')}</ListItem.Subtitle>
+            <ListItem.Subtitle>
+              {
+                prefectures
+                .filter(p => (JSON.parse(mountain.prefecture_id) as number[]).some(i => i === p.id))
+                .map(m => m.name)
+                .join(', ')
+              }
+            </ListItem.Subtitle>
           </ListItem.Content>
           <ListItem.Chevron />
         </ListItem>

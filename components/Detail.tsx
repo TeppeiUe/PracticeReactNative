@@ -4,11 +4,13 @@ import { RootStackParamList } from "../App";
 import { ScrollView } from "react-native";
 import { useEffect, useState } from "react";
 import { Plans, db } from "../models/ClimbingPlan";
+import { usePrefecturesContext } from "../hooks/PrefecturesContext";
 
 export const Detail = ({ route }: NativeStackScreenProps<RootStackParamList, 'Detail'>) => {
   const { mountain } = route.params;
   const disabled = true;
   const [planList, setPlanList] = useState<Plans[]>([]);
+  const prefectures = usePrefecturesContext();
 
   useEffect(() => {
     db.transaction(tx => {
@@ -30,7 +32,12 @@ export const Detail = ({ route }: NativeStackScreenProps<RootStackParamList, 'De
       <Input label='name' disabled={disabled}>{mountain.name}</Input>
       <Input label='kana' disabled={disabled}>{mountain.kana}</Input>
       <Input label='prefecture' disabled={disabled}>
-        {JSON.parse(mountain.prefecture_id).join(', ')}
+        {
+          prefectures
+          .filter(p => (JSON.parse(mountain.prefecture_id) as number[]).some(i => i === p.id))
+          .map(m => m.name)
+          .join(', ')
+        }
       </Input>
       <Input label='latitude' disabled={disabled}>{mountain.latitude}</Input>
       <Input label='longitude' disabled={disabled}>{mountain.longitude}</Input>
