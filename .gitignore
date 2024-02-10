@@ -64,3 +64,6 @@ yarn-error.log
 
 # testing
 /coverage
+
+# tmp
+/android/app/src/main/assets/www/climbingPlan.sqlite3
