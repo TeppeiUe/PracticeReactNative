@@ -1,21 +1,15 @@
 import { useEffect, useState } from "react";
 import { openDatabase } from "react-native-sqlite-storage";
-import { Mountains } from "../models/ClimbingPlan";
+import { Mountains, db } from "../models/ClimbingPlan";
 import { ListItem } from "@rneui/themed";
 import { ScrollView } from "react-native";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { RootStackParamList } from "../App";
 
-export const Home = () => {
+export const Home = ({ navigation }: NativeStackScreenProps<RootStackParamList, 'Home'>) => {
   const [mountainList, setMountainList] = useState<Mountains[]>([]);
 
   useEffect(() => {
-    const db = openDatabase({
-      name: 'climbingPlan.sqlite3',
-      createFromLocation: 1,
-      },
-      () => {},
-      e => console.error(e)
-    );
-
     db.transaction(tx => {
       const query = 'SELECT * FROM mountains';
       const params: string[] = [];
@@ -31,15 +25,15 @@ export const Home = () => {
 
   return (
     <ScrollView>
-      {mountainList.map(m => (
+      {mountainList.map(mountain => (
         <ListItem
-          key={m.id}
-          onPress={() => console.log(m)}
+          key={mountain.id}
+          onPress={() => navigation.navigate('Detail', { mountain })}
           bottomDivider
         >
           <ListItem.Content>
-            <ListItem.Title>{m.name}</ListItem.Title>
-            <ListItem.Subtitle>{JSON.parse(m.prefecture_id).join('-')}</ListItem.Subtitle>
+            <ListItem.Title>{mountain.name}</ListItem.Title>
+            <ListItem.Subtitle>{JSON.parse(mountain.prefecture_id).join('-')}</ListItem.Subtitle>
           </ListItem.Content>
           <ListItem.Chevron />
         </ListItem>
