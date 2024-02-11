@@ -17,25 +17,25 @@ export type Prefectures = {
 }
 
 /** 山テーブル */
-export type Mountains = {
+export class Mountains {
   /** ID */
-  id: number;
+  id: number | null = null;
   /** 山名 */
-  name: string;
+  name: string | null = null;
   /** 山名かな */
-  kana: string | null;
+  kana: string | null = null;
   /** 都道府県ID */
-  prefecture_id: string;
+  prefecture_id: string = '[]';
   /** 経度 */
-  latitude: number;
+  latitude: number | null = null;
   /** 緯度 */
-  longitude: number;
+  longitude: number | null = null;
   /** 備考 */
-  remarks: string | null;
+  remarks: string | null = null;
   /** 天気表示フラグ */
-  weather_view: 0 | 1;
+  weather_view: 0 | 1 = 0;
   /** 論理削除フラグ */
-  logical_delete: 0 | 1;
+  logical_delete: 0 | 1 = 0;
 }
 
 /** 計画テーブル */
