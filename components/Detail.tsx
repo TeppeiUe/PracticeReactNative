@@ -1,16 +1,14 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { Text, ListItem, Input, CheckBox } from "@rneui/themed";
+import { Text, ListItem } from "@rneui/themed";
 import { RootStackParamList } from "../App";
 import { ScrollView } from "react-native";
 import { useEffect, useState } from "react";
 import { Plans, db } from "../models/ClimbingPlan";
-import { usePrefecturesContext } from "../hooks/PrefecturesContext";
+import { MountainForm } from "./MountainForm";
 
 export const Detail = ({ route }: NativeStackScreenProps<RootStackParamList, 'Detail'>) => {
   const { mountain } = route.params;
-  const disabled = true;
   const [planList, setPlanList] = useState<Plans[]>([]);
-  const prefectures = usePrefecturesContext();
 
   useEffect(() => {
     db.transaction(tx => {
@@ -23,36 +21,12 @@ export const Detail = ({ route }: NativeStackScreenProps<RootStackParamList, 'De
         (tx, e) => console.error(e)
       );
     });
-
   }, []);
 
   return (
     <ScrollView>
       <Text h4>basic information</Text>
-      <Input label='name' disabled={disabled}>{mountain.name}</Input>
-      <Input label='kana' disabled={disabled}>{mountain.kana}</Input>
-      <Input label='prefecture' disabled={disabled}>
-        {
-          prefectures
-          .filter(p => (JSON.parse(mountain.prefecture_id) as number[]).some(i => i === p.id))
-          .map(m => m.name)
-          .join(', ')
-        }
-      </Input>
-      <Input label='latitude' disabled={disabled}>{mountain.latitude}</Input>
-      <Input label='longitude' disabled={disabled}>{mountain.longitude}</Input>
-      <CheckBox
-        title='weather view'
-        checked={mountain.weather_view === 1}
-        containerStyle={{ backgroundColor: '' }}
-        disabled={disabled}
-      />
-      <CheckBox
-        title='logical delete'
-        checked={mountain.logical_delete === 1}
-        containerStyle={{ backgroundColor: '' }}
-        disabled={disabled}
-      />
+      <MountainForm mountain={mountain}/>
 
       <Text h4>plans</Text>
       {planList.map(plan => {
