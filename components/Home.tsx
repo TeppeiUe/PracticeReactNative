@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Mountains, db } from "../models/ClimbingPlan";
+import { Mountains, executeSql } from "../models/ClimbingPlan";
 import { FAB, ListItem } from "@rneui/themed";
 import { ScrollView } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -13,18 +13,11 @@ export const Home = ({ navigation }: NativeStackScreenProps<RootStackParamList, 
   const prefectures = usePrefecturesContext();
 
   useEffect(() => {
-    db.transaction(tx => {
-      const query = 'SELECT * FROM mountains';
-      const params: string[] = [];
-      tx.executeSql(
-        query,
-        params,
-        (tx, res) => {
-          setMountainList(res.rows.raw());
-        },
-        (tx, e) => console.error(e)
-      );
-    });
+    executeSql(
+      'SELECT * FROM mountains',
+      [],
+      (_, res) => setMountainList(res.rows.raw())
+    );
   }, []);
 
   return (

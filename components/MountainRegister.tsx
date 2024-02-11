@@ -1,7 +1,7 @@
 import { FC, useRef } from "react";
 import { Dialog } from "@rneui/base";
 import { MountainForm } from "./MountainForm";
-import { Mountains, db } from "../models/ClimbingPlan";
+import { Mountains, executeSql } from "../models/ClimbingPlan";
 
 type MountainRegisterProps = {
   visible: boolean;
@@ -13,51 +13,48 @@ export const MountainRegister: FC<MountainRegisterProps> = props => {
   const mountainRef = useRef(new Mountains);
 
   const handleSaveClick = () => {
-    db.transaction(tx => {
-      const query = `
-        INSERT INTO mountains (
-          name,
-          kana,
-          latitude,
-          longitude,
-          prefecture_id,
-          weather_view,
-          logical_delete
-        ) VALUES (
-          ?, -- name
-          ?, -- kana
-          ?, -- latitude
-          ?, -- longitude
-          ?, -- prefecture_id
-          ?, -- weather_view
-          ? -- logical_delete
-        )
-      `;
-      const {
+    const query = `
+      INSERT INTO mountains (
         name,
         kana,
         latitude,
         longitude,
         prefecture_id,
         weather_view,
-        logical_delete,
-      } = mountainRef.current;
-      const params = [
-        name,
-        kana,
-        latitude,
-        longitude,
-        prefecture_id,
-        weather_view,
-        logical_delete,
-      ];
-      tx.executeSql(
-        query,
-        params,
-        (_, res) => console.log(JSON.stringify(res)),
-        (tx, _) => console.error(tx)
-      );
-    });
+        logical_delete
+      ) VALUES (
+        ?, -- name
+        ?, -- kana
+        ?, -- latitude
+        ?, -- longitude
+        ?, -- prefecture_id
+        ?, -- weather_view
+        ? -- logical_delete
+      )
+    `;
+    const {
+      name,
+      kana,
+      latitude,
+      longitude,
+      prefecture_id,
+      weather_view,
+      logical_delete,
+    } = mountainRef.current;
+    const params = [
+      name,
+      kana,
+      latitude,
+      longitude,
+      prefecture_id,
+      weather_view,
+      logical_delete,
+    ];
+    executeSql(
+      query,
+      params,
+      (_, res) => console.log(JSON.stringify(res))
+    );
   }
 
   return (

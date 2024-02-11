@@ -1,12 +1,30 @@
-import { openDatabase } from "react-native-sqlite-storage";
+import { ResultSet, Transaction, openDatabase } from "react-native-sqlite-storage";
 
-export const db = openDatabase({
+const db = openDatabase({
   name: 'climbingPlan.sqlite3',
   createFromLocation: 1,
   },
   () => {},
   e => console.error(e)
 );
+
+export const executeSql = (
+  query: string,
+  params: any[],
+  callback: (tx: Transaction, res: ResultSet) => void
+) => {
+  db.transaction(tx => {
+    tx.executeSql(
+      query,
+      params,
+      callback,
+      (tx, e) => {
+        console.error(JSON.stringify(tx));
+        console.error(JSON.stringify(e));
+      }
+    );
+  });
+}
 
 /** 都道府県テーブル */
 export type Prefectures = {

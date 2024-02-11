@@ -3,7 +3,7 @@ import {  ListItem, FAB } from "@rneui/themed";
 import { RootStackParamList } from "../App";
 import { ScrollView } from "react-native";
 import { useEffect, useRef, useState } from "react";
-import { Plans, db } from "../models/ClimbingPlan";
+import { Plans, executeSql } from "../models/ClimbingPlan";
 import { MountainForm } from "./MountainForm";
 
 export const Detail = ({ route }: NativeStackScreenProps<RootStackParamList, 'Detail'>) => {
@@ -13,58 +13,50 @@ export const Detail = ({ route }: NativeStackScreenProps<RootStackParamList, 'De
   const mountainRef = useRef(mountain);
 
   useEffect(() => {
-    db.transaction(tx => {
-      const query = 'SELECT * FROM plans WHERE mountain_id = ?';
-      const params = [mountain.id];
-      tx.executeSql(
-        query,
-        params,
-        (tx, res) => setPlanList(res.rows.raw()),
-        (tx, e) => console.error(e)
-      );
-    });
+    executeSql(
+      'SELECT * FROM plans WHERE mountain_id = ?',
+      [mountain.id],
+      (_, res) => setPlanList(res.rows.raw())
+    );
   }, []);
 
   const handleSaveClick = () => {
-    db.transaction(tx => {
-      const query = `
-        UPDATE mountains SET
-        name = ?,
-        kana = ?,
-        latitude = ?,
-        longitude = ?,
-        prefecture_id = ?,
-        weather_view = ?,
-        logical_delete = ?
-        WHERE id = ?
-      `;
-      const {
-        name,
-        kana,
-        latitude,
-        longitude,
-        prefecture_id,
-        weather_view,
-        logical_delete,
-        id,
-      } = mountainRef.current;
-      const params = [
-        name,
-        kana,
-        latitude,
-        longitude,
-        prefecture_id,
-        weather_view,
-        logical_delete,
-        id,
-      ];
-      tx.executeSql(
-        query,
-        params,
-        (_, res) => console.log(JSON.stringify(res)),
-        (_, e) => console.error(e)
-      );
-    });
+    const query = `
+      UPDATE mountains SET
+      name = ?,
+      kana = ?,
+      latitude = ?,
+      longitude = ?,
+      prefecture_id = ?,
+      weather_view = ?,
+      logical_delete = ?
+      WHERE id = ?
+    `;
+    const {
+      name,
+      kana,
+      latitude,
+      longitude,
+      prefecture_id,
+      weather_view,
+      logical_delete,
+      id,
+    } = mountainRef.current;
+    const params = [
+      name,
+      kana,
+      latitude,
+      longitude,
+      prefecture_id,
+      weather_view,
+      logical_delete,
+      id,
+    ];
+    executeSql(
+      query,
+      params,
+      (_, res) => console.log(JSON.stringify(res))
+    );
   }
 
   return (
