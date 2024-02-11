@@ -1,7 +1,7 @@
 import { FC, useRef } from "react";
 import { Dialog } from "@rneui/base";
 import { MountainForm } from "./MountainForm";
-import { Mountains } from "../models/ClimbingPlan";
+import { Mountains, db } from "../models/ClimbingPlan";
 
 type MountainRegisterProps = {
   visible: boolean;
@@ -11,6 +11,54 @@ type MountainRegisterProps = {
 export const MountainRegister: FC<MountainRegisterProps> = props => {
   const { visible, setVisible } = props;
   const mountainRef = useRef(new Mountains);
+
+  const handleSaveClick = () => {
+    db.transaction(tx => {
+      const query = `
+        INSERT INTO mountains (
+          name,
+          kana,
+          latitude,
+          longitude,
+          prefecture_id,
+          weather_view,
+          logical_delete
+        ) VALUES (
+          ?, -- name
+          ?, -- kana
+          ?, -- latitude
+          ?, -- longitude
+          ?, -- prefecture_id
+          ?, -- weather_view
+          ? -- logical_delete
+        )
+      `;
+      const {
+        name,
+        kana,
+        latitude,
+        longitude,
+        prefecture_id,
+        weather_view,
+        logical_delete,
+      } = mountainRef.current;
+      const params = [
+        name,
+        kana,
+        latitude,
+        longitude,
+        prefecture_id,
+        weather_view,
+        logical_delete,
+      ];
+      tx.executeSql(
+        query,
+        params,
+        (_, res) => console.log(JSON.stringify(res)),
+        (tx, _) => console.error(tx)
+      );
+    });
+  }
 
   return (
     <Dialog
@@ -26,7 +74,10 @@ export const MountainRegister: FC<MountainRegisterProps> = props => {
     <Dialog.Actions>
       <Dialog.Button
         title='save'
-        onPress={() => console.log(JSON.stringify(mountainRef.current))}
+        onPress={() => {
+          handleSaveClick();
+          setVisible(false);
+        }}
       />
       <Dialog.Button
         title='cancel'
