@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Mountains, executeSql } from "../models/ClimbingPlan";
 import { FAB, ListItem } from "@rneui/themed";
-import { ScrollView } from "react-native";
+import { RefreshControl, ScrollView } from "react-native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../App";
 import { usePrefecturesContext } from "../hooks/PrefecturesContext";
@@ -9,20 +9,37 @@ import { MountainRegister } from "./MountainRegister";
 
 export const Home = ({ navigation }: NativeStackScreenProps<RootStackParamList, 'Home'>) => {
   const [mountainList, setMountainList] = useState<Mountains[]>([]);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
   const [visible, setVisible] = useState<boolean>(false);
   const prefectures = usePrefecturesContext();
 
-  useEffect(() => {
-    executeSql(
-      'SELECT * FROM mountains',
-      [],
-      (_, res) => setMountainList(res.rows.raw())
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    fetch();
+    setTimeout(
+      () => setRefreshing(false),
+      1000
     );
   }, []);
 
+  const fetch = () => executeSql(
+    'SELECT * FROM mountains',
+    [],
+    (_, res) => setMountainList(res.rows.raw())
+  );
+
+  useEffect(() => fetch(), []);
+
   return (
     <>
-      <ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+          />
+        }
+      >
         {mountainList.map(mountain => (
           <ListItem
             key={mountain.id}
