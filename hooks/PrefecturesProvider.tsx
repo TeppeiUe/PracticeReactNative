@@ -1,15 +1,13 @@
-import { ReactNode, useEffect, useState } from "react"
-import { Prefectures, executeSql } from "../models/ClimbingPlan";
-import { PrefecturesContext } from "./PrefecturesContext";
+import {ReactNode, useEffect, useState} from 'react';
+import {Prefectures, executeSql} from '../models/ClimbingPlan';
+import {PrefecturesContext} from './PrefecturesContext';
 
-export const PrefecturesProvider = ({ children }: { children: ReactNode }) => {
+export const PrefecturesProvider = ({children}: {children: ReactNode}) => {
   const [prefectures, setPrefectures] = useState<Prefectures[]>([]);
 
   useEffect(() => {
-    executeSql(
-      'SELECT * FROM prefectures',
-      [],
-      (_, res) => setPrefectures(res.rows.raw())
+    executeSql('SELECT * FROM prefectures', [], (_, res) =>
+      setPrefectures(res.rows.raw()),
     );
   }, []);
 
@@ -17,5 +15,5 @@ export const PrefecturesProvider = ({ children }: { children: ReactNode }) => {
     <PrefecturesContext.Provider value={prefectures}>
       {children}
     </PrefecturesContext.Provider>
-  )
-}
+  );
+};

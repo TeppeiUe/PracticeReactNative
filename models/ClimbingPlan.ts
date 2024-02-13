@@ -1,30 +1,30 @@
-import { ResultSet, Transaction, openDatabase } from "react-native-sqlite-storage";
+import {
+  ResultSet,
+  Transaction,
+  openDatabase,
+} from 'react-native-sqlite-storage';
 
-const db = openDatabase({
-  name: 'climbingPlan.sqlite3',
-  createFromLocation: 1,
+const db = openDatabase(
+  {
+    name: 'climbingPlan.sqlite3',
+    createFromLocation: 1,
   },
   () => {},
-  e => console.error(e)
+  e => console.error(e),
 );
 
 export const executeSql = (
   query: string,
   params: any[],
-  callback: (tx: Transaction, res: ResultSet) => void
+  callback: (tx: Transaction, res: ResultSet) => void,
 ) => {
   db.transaction(tx => {
-    tx.executeSql(
-      query,
-      params,
-      callback,
-      (tx, e) => {
-        console.error(JSON.stringify(tx));
-        console.error(JSON.stringify(e));
-      }
-    );
+    tx.executeSql(query, params, callback, (tx, e) => {
+      console.error(JSON.stringify(tx));
+      console.error(JSON.stringify(e));
+    });
   });
-}
+};
 
 /** 都道府県テーブル */
 export type Prefectures = {
@@ -32,7 +32,7 @@ export type Prefectures = {
   id: number;
   /** 都道府県名 */
   name: string;
-}
+};
 
 /** 山テーブル */
 export class Mountains {
@@ -76,4 +76,4 @@ export type Plans = {
   remarks: string | null;
   /** 車でアクセスフラグ */
   is_car_access: 0 | 1;
-}
+};
