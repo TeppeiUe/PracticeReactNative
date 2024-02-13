@@ -1,16 +1,21 @@
-import { FC, useRef } from "react";
-import { Dialog } from "@rneui/base";
-import { MountainForm } from "./MountainForm";
-import { Mountains, executeSql } from "../models/ClimbingPlan";
+import {FC, useState} from 'react';
+import {Dialog} from '@rneui/themed';
+import {MountainForm} from './MountainForm';
+import {Mountains, executeSql} from '../models/ClimbingPlan';
 
 type MountainRegisterProps = {
   visible: boolean;
   setVisible: (visible: boolean) => void;
-}
+};
 
 export const MountainRegister: FC<MountainRegisterProps> = props => {
-  const { visible, setVisible } = props;
-  const mountainRef = useRef(new Mountains);
+  const {visible, setVisible} = props;
+  const [mountain, setMountain] = useState<Mountains>(new Mountains());
+
+  const closeDialog = () => {
+    setVisible(false);
+    setMountain(new Mountains());
+  };
 
   const handleSaveClick = () => {
     const query = `
@@ -40,7 +45,7 @@ export const MountainRegister: FC<MountainRegisterProps> = props => {
       prefecture_id,
       weather_view,
       logical_delete,
-    } = mountainRef.current;
+    } = mountain;
     const params = [
       name,
       kana,
@@ -50,37 +55,25 @@ export const MountainRegister: FC<MountainRegisterProps> = props => {
       weather_view,
       logical_delete,
     ];
-    executeSql(
-      query,
-      params,
-      (_, res) => console.log(JSON.stringify(res))
-    );
-  }
+    executeSql(query, params, (_, res) => console.log(JSON.stringify(res)));
+    closeDialog();
+  };
 
   return (
     <Dialog
-    isVisible={visible}
-    // onBackdropPress={() => setVisible(false))}
-  >
-    <Dialog.Title title='mountain register' />
-    <MountainForm
-      mountain={mountainRef.current}
-      handleValueChange={m => mountainRef.current = m}
-      disabled={false}
-    />
-    <Dialog.Actions>
-      <Dialog.Button
-        title='save'
-        onPress={() => {
-          handleSaveClick();
-          setVisible(false);
-        }}
+      isVisible={visible}
+      // onBackdropPress={() => closeDialog())}
+    >
+      <Dialog.Title title="mountain register" />
+      <MountainForm
+        mountain={mountain}
+        handleValueChange={m => setMountain(m)}
+        disabled={false}
       />
-      <Dialog.Button
-        title='cancel'
-        onPress={() => setVisible(false)}
-      />
-    </Dialog.Actions>
-  </Dialog>
-  )
-}
+      <Dialog.Actions>
+        <Dialog.Button title="save" onPress={() => handleSaveClick()} />
+        <Dialog.Button title="cancel" onPress={() => closeDialog()} />
+      </Dialog.Actions>
+    </Dialog>
+  );
+};
