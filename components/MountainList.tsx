@@ -6,6 +6,7 @@ import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../navigator/RootStackNavigator';
 import {usePrefecturesContext} from '../hooks/PrefecturesContext';
 import {MountainRegister} from './MountainRegister';
+import {useMountainIdContext} from '../hooks/MountainIdContext';
 
 export const MountainList = ({
   navigation,
@@ -14,6 +15,7 @@ export const MountainList = ({
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [visible, setVisible] = useState<boolean>(false);
   const prefectures = usePrefecturesContext();
+  const {setMountainId} = useMountainIdContext();
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
@@ -37,11 +39,12 @@ export const MountainList = ({
         {mountainList.map(mountain => (
           <ListItem
             key={mountain.id}
-            onPress={() =>
+            onPress={() => {
+              setMountainId(mountain.id!);
               navigation.navigate('MountainTabNavigator', {
-                mountain_id: mountain.id!,
-              })
-            }
+                screen: 'MountainDetail',
+              });
+            }}
             bottomDivider>
             <ListItem.Content>
               <ListItem.Title>{mountain.name}</ListItem.Title>

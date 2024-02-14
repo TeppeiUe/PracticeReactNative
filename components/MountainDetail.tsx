@@ -1,25 +1,32 @@
 import {MaterialTopTabScreenProps} from '@react-navigation/material-top-tabs';
 import {MountainTabParamList} from '../navigator/MountainTabNavigator';
-import {useEffect, useState} from 'react';
+import {useCallback, useState} from 'react';
 import {Mountains, executeSql} from '../models/ClimbingPlan';
 import {ScrollView} from 'react-native';
 import {MountainForm} from './MountainForm';
 import {FAB} from '@rneui/themed';
+import {CompositeScreenProps, useFocusEffect} from '@react-navigation/native';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {RootStackParamList} from '../navigator/RootStackNavigator';
+import {useMountainIdContext} from '../hooks/MountainIdContext';
 
-export const MountainDetail = ({
-  route,
-}: MaterialTopTabScreenProps<MountainTabParamList, 'MountainDetail'>) => {
-  const {mountain_id} = route.params;
+export const MountainDetail = ({}: CompositeScreenProps<
+  MaterialTopTabScreenProps<MountainTabParamList, 'MountainDetail'>,
+  NativeStackScreenProps<RootStackParamList, 'MountainTabNavigator'>
+>) => {
   const [mountain, setMountain] = useState<Mountains>(new Mountains());
   const [disabled, setDisabled] = useState<boolean>(true);
+  const {mountainId} = useMountainIdContext();
 
-  useEffect(() => {
-    executeSql(
-      'SELECT * FROM mountains WHERE id = ?',
-      [mountain_id],
-      (_, res) => setMountain(res.rows.item(0)),
-    );
-  }, [mountain_id]);
+  useFocusEffect(
+    useCallback(() => {
+      executeSql(
+        'SELECT * FROM mountains WHERE id = ?',
+        [mountainId],
+        (_, res) => setMountain(res.rows.item(0)),
+      );
+    }, [mountainId]),
+  );
 
   const handleSaveClick = () => {
     const {
@@ -50,7 +57,7 @@ export const MountainDetail = ({
       prefecture_id,
       weather_view,
       logical_delete,
-      mountain_id,
+      mountainId,
     ];
     executeSql(query, params, (_, res) => console.log(JSON.stringify(res)));
   };
