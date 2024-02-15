@@ -9,10 +9,9 @@ import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../navigator/RootStackNavigator';
 import {PlanStackParamList} from '../navigator/PlanStackNavigator';
 import {useMountainIdContext} from '../hooks/MountainIdContext';
+import {PlanForm} from './PlanForm';
 
-export const PlanList = ({
-  navigation,
-}: CompositeScreenProps<
+export const PlanList = ({}: CompositeScreenProps<
   NativeStackScreenProps<PlanStackParamList, 'PlanList'>,
   CompositeScreenProps<
     MaterialTopTabScreenProps<MountainTabParamList, 'PlanStackNavigator'>,
@@ -20,6 +19,7 @@ export const PlanList = ({
   >
 >) => {
   const [planList, setPlanList] = useState<Plans[]>([]);
+  const [expandedItems, setExpandedItems] = useState<number[]>([]);
   const {mountainId} = useMountainIdContext();
 
   useFocusEffect(
@@ -38,23 +38,29 @@ export const PlanList = ({
         {planList.map(plan => {
           const {effective_distance} = plan;
           return (
-            <ListItem
+            <ListItem.Accordion
               key={plan.id}
-              onPress={() =>
-                navigation.navigate('PlanDetail', {
-                  plan_id: plan.id,
-                })
+              content={
+                <ListItem.Content>
+                  <ListItem.Title>{plan.name}</ListItem.Title>
+                  <ListItem.Subtitle>
+                    {effective_distance ? effective_distance / 1000 : '-'} km /
+                    {plan.effective_height ?? '-'} m
+                  </ListItem.Subtitle>
+                </ListItem.Content>
               }
-              bottomDivider>
-              <ListItem.Content>
-                <ListItem.Title>{plan.name}</ListItem.Title>
-                <ListItem.Subtitle>
-                  {effective_distance ? effective_distance / 1000 : '-'} km /
-                  {plan.effective_height ?? '-'} m
-                </ListItem.Subtitle>
-              </ListItem.Content>
-              <ListItem.Chevron />
-            </ListItem>
+              isExpanded={expandedItems.includes(plan.id!)}
+              onPress={() =>
+                expandedItems.includes(plan.id!)
+                  ? setExpandedItems(expandedItems.filter(i => i !== plan.id))
+                  : setExpandedItems([...expandedItems, plan.id!])
+              }>
+              <PlanForm
+                plan={plan}
+                handleValueChange={p => setPlanList([...planList, p])}
+                disabled={true}
+              />
+            </ListItem.Accordion>
           );
         })}
       </ScrollView>

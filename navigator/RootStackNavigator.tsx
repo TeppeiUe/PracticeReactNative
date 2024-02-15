@@ -20,10 +20,7 @@ export const RootStackNavigator = () => {
   return (
     <NavigationContainer>
       <RootStack.Navigator initialRouteName="MountainList">
-        <RootStack.Screen
-          name="MountainList"
-          component={MountainList}
-        />
+        <RootStack.Screen name="MountainList" component={MountainList} />
         <RootStack.Screen
           name="MountainTabNavigator"
           component={MountainTabNavigator}

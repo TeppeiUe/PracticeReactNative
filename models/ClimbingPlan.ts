@@ -57,23 +57,23 @@ export class Mountains {
 }
 
 /** 計画テーブル */
-export type Plans = {
+export class Plans {
   /** ID */
-  id: number;
+  id: number | null = null;
   /** 山ID */
-  mountain_id: number;
+  mountain_id: number | null = null;
   /** 計画名 */
-  name: string | null;
+  name: string | null = null;
   /** URL */
-  url: string | null;
+  url: string | null = null;
   /** 累積標高 */
-  effective_height: number | null;
+  effective_height: number | null = null;
   /** 累積距離 */
-  effective_distance: number | null;
+  effective_distance: number | null = null;
   /** アクセス情報 */
-  access_information: string | null;
+  access_information: string = '';
   /** 備考 */
-  remarks: string | null;
+  remarks: string | null = null;
   /** 車でアクセスフラグ */
-  is_car_access: 0 | 1;
-};
+  is_car_access: 0 | 1 = 0;
+}

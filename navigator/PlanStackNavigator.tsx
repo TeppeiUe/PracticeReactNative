@@ -13,16 +13,9 @@ export const PlanStackNavigator = () => {
   return (
     <PlanStack.Navigator
       initialRouteName="PlanList"
-      screenOptions={{headerShown: false}}
-    >
-      <PlanStack.Screen
-        name="PlanList"
-        component={PlanList}
-      />
-      <PlanStack.Screen
-        name="PlanDetail"
-        component={PlanDetail}
-      />
+      screenOptions={{headerShown: false}}>
+      <PlanStack.Screen name="PlanList" component={PlanList} />
+      <PlanStack.Screen name="PlanDetail" component={PlanDetail} />
     </PlanStack.Navigator>
   );
 };
