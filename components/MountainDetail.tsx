@@ -10,11 +10,15 @@ import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../navigator/RootStackNavigator';
 import {useMountainIdContext} from '../hooks/MountainIdContext';
 
+/**
+ * 山データ詳細表示コンポーネント
+ */
 export const MountainDetail = ({}: CompositeScreenProps<
   MaterialTopTabScreenProps<MountainTabParamList, 'MountainDetail'>,
   NativeStackScreenProps<RootStackParamList, 'MountainTabNavigator'>
 >) => {
   const [mountain, setMountain] = useState<Mountains>(new Mountains());
+  // 編集状態制御
   const [disabled, setDisabled] = useState<boolean>(true);
   const {mountainId} = useMountainIdContext();
 
@@ -28,6 +32,9 @@ export const MountainDetail = ({}: CompositeScreenProps<
     }, [mountainId]),
   );
 
+  /**
+   * 編集内容の保存
+   */
   const handleSaveClick = () => {
     const {
       name,

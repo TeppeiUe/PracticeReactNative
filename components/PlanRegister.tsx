@@ -5,21 +5,36 @@ import {Plans, executeSql} from '../models/ClimbingPlan';
 import {useMountainIdContext} from '../hooks/MountainIdContext';
 import {ScrollView, StyleSheet} from 'react-native';
 
+/**
+ * 計画登録コンポーネントのプロパティ
+ */
 type PlanRegisterProps = {
+  /** 表示状態 */
   visible: boolean;
+  /** 表示状態管理 */
   setVisible: (visible: boolean) => void;
 };
 
+/**
+ * 計画登録ダイアログコンポーネント
+ */
 export const PlanRegister: FC<PlanRegisterProps> = props => {
   const {visible, setVisible} = props;
+  // 登録計画データ制御
   const [plan, setPlan] = useState<Plans>(new Plans());
   const {mountainId} = useMountainIdContext();
 
+  /**
+   * ダイアログを閉じる場合の処理
+   */
   const closeDialog = () => {
     setVisible(false);
     setPlan(new Plans());
   };
 
+  /**
+   * 計画データ登録
+   */
   const handleSaveClick = () => {
     const {
       name,
@@ -62,11 +77,7 @@ export const PlanRegister: FC<PlanRegisterProps> = props => {
   };
 
   return (
-    <Dialog
-      isVisible={visible}
-      overlayStyle={styles.overlayStyle}
-      // onBackdropPress={() => closeDialog())}
-    >
+    <Dialog isVisible={visible} overlayStyle={styles.overlayStyle}>
       <Dialog.Title title="plan register" />
       <ScrollView>
         <PlanForm

@@ -6,20 +6,31 @@ import {MultiSelect} from 'react-native-element-dropdown';
 import {StyleSheet, View} from 'react-native';
 import {checkPositiveNumber} from '../utils/validation';
 
+/**
+ * 山フォームコンポーネントのプロパティ
+ */
 type MountainFormProps<T = Mountains> = {
+  /** disabled */
   disabled?: boolean;
+  /** 表示山データ */
   mountain: T;
+  /** 山データのコールバック */
   handleValueChange?: (mountain: T) => void;
 };
 
+/**
+ * 山フォームコンポーネント
+ */
 export const MountainForm: FC<MountainFormProps> = props => {
   const {disabled = true, handleValueChange} = props;
   const prefectures = usePrefecturesContext();
 
-  const handleInputChange = (val: any) => {
-    const m: Mountains = {...props.mountain, ...val};
+  /**
+   * 山データのコールバック
+   */
+  const handleInputChange = (val: {[K in keyof Mountains]?: Mountains[K]}) => {
     if (handleValueChange !== undefined) {
-      handleValueChange(m);
+      handleValueChange({...props.mountain, ...val});
     }
   };
 

@@ -8,21 +8,34 @@ import {usePrefecturesContext} from '../hooks/PrefecturesContext';
 import {MountainRegister} from './MountainRegister';
 import {useMountainIdContext} from '../hooks/MountainIdContext';
 
+/**
+ * 山リスト表示コンポーネント
+ */
 export const MountainList = ({
   navigation,
 }: NativeStackScreenProps<RootStackParamList, 'MountainList'>) => {
+  // 表示山リスト制御
   const [mountainList, setMountainList] = useState<Mountains[]>([]);
+  // 画面リフレッシュ制御
   const [refreshing, setRefreshing] = useState<boolean>(false);
+  // 登録ダイアログ表示制御
   const [visible, setVisible] = useState<boolean>(false);
+
   const prefectures = usePrefecturesContext();
   const {setMountainId} = useMountainIdContext();
 
+  /**
+   * 画面リフレッシュ
+   */
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     fetch();
     setTimeout(() => setRefreshing(false), 1000);
   }, []);
 
+  /**
+   * 山データ取得
+   */
   const fetch = () =>
     executeSql('SELECT * FROM mountains', [], (_, res) =>
       setMountainList(res.rows.raw()),

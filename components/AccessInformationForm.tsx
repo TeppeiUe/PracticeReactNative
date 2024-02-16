@@ -3,21 +3,34 @@ import {AccessInformation} from '../models/AccessInformation';
 import {ListItem, Icon, Button} from '@rneui/themed';
 import {StyleSheet, View} from 'react-native';
 
+/**
+ * アクセス情報フォームコンポーネントのプロパティ
+ */
 type AccessInformationFormProps<T> = {
+  /** disabled */
   disabled?: boolean;
+  /** 表示アクセス情報データ */
   accessInformation: T;
+  /** アクセス情報データのコールバック */
   handleValueChange?: (accessInformation: T) => void;
 };
 
+/**
+ * アクセス情報内部フォームコンポーネント
+ */
 const AccessInformationInnerForm: FC<
   AccessInformationFormProps<AccessInformation>
 > = props => {
   const {disabled = true, accessInformation, handleValueChange} = props;
 
-  const handleInputChange = (val: any) => {
-    const a: AccessInformation = {...props.accessInformation, ...val};
+  /**
+   * アクセス情報データのコールバック
+   */
+  const handleInputChange = (val: {
+    [K in keyof AccessInformation]?: AccessInformation[K];
+  }) => {
     if (handleValueChange !== undefined) {
-      handleValueChange(a);
+      handleValueChange({...props.accessInformation, ...val});
     }
   };
 
@@ -69,12 +82,21 @@ const AccessInformationInnerForm: FC<
   );
 };
 
+/**
+ * アクセス情報リストフォームコンポーネント
+ */
 export const AccessInformationForm: FC<
   AccessInformationFormProps<AccessInformation[]>
 > = props => {
   const {disabled = true, handleValueChange} = props;
+  /** アコーディオン開閉制御 */
   const [expandedItems, setExpandedItems] = useState<number[]>([]);
 
+  /**
+   * アクセス情報リストデータのコールバック
+   * @param index アクセス情報リストデータのインデックス
+   * @param val 変更後のアクセス情報データ
+   */
   const handleInputChange = (index: number, val: AccessInformation) => {
     const a: AccessInformation[] = [...props.accessInformation];
     a[index] = val;
@@ -83,6 +105,10 @@ export const AccessInformationForm: FC<
     }
   };
 
+  /**
+   * アクセス情報データ削除
+   * @param index アクセス情報リストデータのインデックス
+   */
   const handleInputDelete = (index: number) => {
     const a: AccessInformation[] = [...props.accessInformation];
     a.splice(index, 1);
@@ -91,6 +117,9 @@ export const AccessInformationForm: FC<
     }
   };
 
+  /**
+   * 新規アクセス情報データ追加
+   */
   const handleInputAdd = () => {
     if (handleValueChange !== undefined) {
       handleValueChange([...props.accessInformation, new AccessInformation()]);
@@ -104,6 +133,7 @@ export const AccessInformationForm: FC<
           key={i}
           topDivider
           bottomDivider
+          noIcon
           containerStyle={styles.containerStyle}
           isExpanded={expandedItems.includes(i)}
           content={

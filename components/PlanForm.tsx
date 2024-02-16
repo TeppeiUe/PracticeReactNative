@@ -5,19 +5,30 @@ import {StyleSheet, View} from 'react-native';
 import {AccessInformationForm} from './AccessInformationForm';
 import {checkNaturalNumber} from '../utils/validation';
 
+/**
+ * 計画フォームコンポーネントのプロパティ
+ */
 type PlanFormProps<T = Plans> = {
+  /** disabled */
   disabled?: boolean;
+  /** 表示計画データ */
   plan: T;
+  /** 計画データのコールバック */
   handleValueChange?: (plan: T) => void;
 };
 
+/**
+ * 計画フォームコンポーネント
+ */
 export const PlanForm: FC<PlanFormProps> = props => {
   const {disabled = true, handleValueChange} = props;
 
-  const handleInputChange = (val: any) => {
-    const p: Plans = {...props.plan, ...val};
+  /**
+   * 計画データのコールバック
+   */
+  const handleInputChange = (val: {[K in keyof Plans]?: Plans[K]}) => {
     if (handleValueChange !== undefined) {
-      handleValueChange(p);
+      handleValueChange({...props.plan, ...val});
     }
   };
 

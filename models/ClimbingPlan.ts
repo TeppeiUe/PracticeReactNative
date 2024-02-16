@@ -4,6 +4,9 @@ import {
   openDatabase,
 } from 'react-native-sqlite-storage';
 
+/**
+ * DB接続
+ */
 const db = openDatabase(
   {
     name: 'climbingPlan.sqlite3',
@@ -13,6 +16,12 @@ const db = openDatabase(
   e => console.error(e),
 );
 
+/**
+ * SQL実行
+ * @param query 実行クエリ
+ * @param params パラメータ
+ * @param callback クエリ実行成功時のコールバック
+ */
 export const executeSql = (
   query: string,
   params: any[],

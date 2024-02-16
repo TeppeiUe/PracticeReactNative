@@ -9,13 +9,21 @@ import {
   NavigatorScreenParams,
 } from '@react-navigation/native';
 
+/**
+ * ルートスタックパラメータ定義
+ */
 export type RootStackParamList = {
+  /** 山リスト画面 */
   MountainList: undefined;
+  /** 山情報詳細画面 */
   MountainTabNavigator: NavigatorScreenParams<MountainTabParamList>;
 };
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 
+/**
+ * ルートスタックパラメータ
+ */
 export const RootStackNavigator = () => {
   return (
     <NavigationContainer>
