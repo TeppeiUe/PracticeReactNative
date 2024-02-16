@@ -1,6 +1,6 @@
 import {useCallback, useEffect, useState} from 'react';
 import {Mountains, executeSql} from '../models/ClimbingPlan';
-import {FAB, ListItem} from '@rneui/themed';
+import {FAB, ListItem, useTheme} from '@rneui/themed';
 import {RefreshControl, ScrollView} from 'react-native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../navigator/RootStackNavigator';
@@ -23,6 +23,7 @@ export const MountainList = ({
 
   const prefectures = usePrefecturesContext();
   const {setMountainId} = useMountainIdContext();
+  const {theme} = useTheme();
 
   /**
    * 画面リフレッシュ
@@ -80,6 +81,7 @@ export const MountainList = ({
       {/* 登録ボタン */}
       <FAB
         icon={{name: 'add', color: 'white'}}
+        color={theme.colors.primary}
         size="small"
         placement="right"
         onPress={() => setVisible(true)}

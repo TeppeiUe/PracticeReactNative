@@ -9,6 +9,7 @@ import {CompositeScreenProps, useFocusEffect} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../navigator/RootStackNavigator';
 import {useMountainIdContext} from '../hooks/MountainIdContext';
+import {ConfirmDialog} from './ConfirmDialog';
 
 /**
  * 山データ詳細表示コンポーネント
@@ -17,25 +18,34 @@ export const MountainDetail = ({}: CompositeScreenProps<
   MaterialTopTabScreenProps<MountainTabParamList, 'MountainDetail'>,
   NativeStackScreenProps<RootStackParamList, 'MountainTabNavigator'>
 >) => {
+  // 表示山データ制御
   const [mountain, setMountain] = useState<Mountains>(new Mountains());
   // 編集状態制御
   const [disabled, setDisabled] = useState<boolean>(true);
+  // 登録確認ダイアログ表示制御
+  const [visible, setVisible] = useState<boolean>(false);
+
   const {mountainId} = useMountainIdContext();
 
-  useFocusEffect(
-    useCallback(() => {
+  /**
+   * 山データ取得
+   */
+  const fetch = useCallback(
+    () =>
       executeSql(
         'SELECT * FROM mountains WHERE id = ?',
         [mountainId],
         (_, res) => setMountain(res.rows.item(0)),
-      );
-    }, [mountainId]),
+      ),
+    [mountainId],
   );
 
+  useFocusEffect(fetch);
+
   /**
-   * 編集内容の保存
+   * 登録確認okの場合の処理
    */
-  const handleSaveClick = () => {
+  const okCallback = () => {
     const {
       name,
       kana,
@@ -67,6 +77,15 @@ export const MountainDetail = ({}: CompositeScreenProps<
       mountainId,
     ];
     executeSql(query, params, (_, res) => console.log(JSON.stringify(res)));
+    setDisabled(true);
+  };
+
+  /**
+   * 登録確認cancelの場合の処理
+   */
+  const cancelCallback = () => {
+    fetch();
+    setDisabled(true);
   };
 
   return (
@@ -81,22 +100,22 @@ export const MountainDetail = ({}: CompositeScreenProps<
 
       {/* 編集ボタン */}
       <FAB
-        icon={{name: 'edit', color: 'white'}}
+        icon={{
+          name: disabled ? 'edit' : 'save',
+          color: 'white',
+        }}
         size="small"
         placement="right"
-        onPress={() => setDisabled(!disabled)}
-        color={disabled ? '' : '#e3e6e8'}
+        onPress={() => (disabled ? setDisabled(false) : setVisible(true))}
       />
-      {/* 保存ボタン */}
-      <FAB
-        icon={{name: 'save', color: 'white'}}
-        size="small"
-        placement="left"
-        onPress={() => {
-          handleSaveClick();
-          setDisabled(!disabled);
-        }}
-        visible={!disabled}
+
+      {/* 登録確認ダイアログ */}
+      <ConfirmDialog
+        title="Would you like to save?"
+        visible={visible}
+        setVisible={setVisible}
+        okCallback={okCallback}
+        cancelCallback={cancelCallback}
       />
     </>
   );

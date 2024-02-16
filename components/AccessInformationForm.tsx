@@ -1,6 +1,6 @@
 import {FC, useState} from 'react';
 import {AccessInformation} from '../models/AccessInformation';
-import {ListItem, Icon, Button} from '@rneui/themed';
+import {ListItem, Icon, useTheme} from '@rneui/themed';
 import {StyleSheet, View} from 'react-native';
 
 /**
@@ -92,6 +92,8 @@ export const AccessInformationForm: FC<
   /** アコーディオン開閉制御 */
   const [expandedItems, setExpandedItems] = useState<number[]>([]);
 
+  const {theme} = useTheme();
+
   /**
    * アクセス情報リストデータのコールバック
    * @param index アクセス情報リストデータのインデックス
@@ -137,7 +139,7 @@ export const AccessInformationForm: FC<
           containerStyle={styles.containerStyle}
           isExpanded={expandedItems.includes(i)}
           content={
-            <View style={styles.container}>
+            <View style={styles.listItemAccordionContent}>
               <ListItem.Content>
                 <ListItem.Title>
                   {`${a.departure?.name ?? ''} -> ${a.arrival?.name ?? ''}`}
@@ -146,7 +148,7 @@ export const AccessInformationForm: FC<
               </ListItem.Content>
               <Icon
                 name="delete"
-                reverse
+                color={theme.colors.warning}
                 disabled={disabled}
                 onPress={() => handleInputDelete(i)}
               />
@@ -164,16 +166,24 @@ export const AccessInformationForm: FC<
           />
         </ListItem.Accordion>
       ))}
-      <Button size="sm" disabled={disabled} onPress={() => handleInputAdd()}>
-        <Icon name="add" color="white" />
-      </Button>
+      <View style={styles.listItemAddition}>
+        <Icon
+          name="add"
+          color={theme.colors.primary}
+          disabled={disabled}
+          onPress={() => handleInputAdd()}
+        />
+      </View>
     </>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  listItemAccordionContent: {
     flexDirection: 'row',
+    alignItems: 'center',
+  },
+  listItemAddition: {
     alignItems: 'center',
   },
   containerStyle: {

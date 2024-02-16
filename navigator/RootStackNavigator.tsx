@@ -5,9 +5,12 @@ import {
   MountainTabParamList,
 } from './MountainTabNavigator';
 import {
+  DarkTheme,
+  DefaultTheme,
   NavigationContainer,
   NavigatorScreenParams,
 } from '@react-navigation/native';
+import {useColorScheme} from 'react-native';
 
 /**
  * ルートスタックパラメータ定義
@@ -25,8 +28,9 @@ const RootStack = createNativeStackNavigator<RootStackParamList>();
  * ルートスタックパラメータ
  */
 export const RootStackNavigator = () => {
+  const theme = useColorScheme();
   return (
-    <NavigationContainer>
+    <NavigationContainer theme={theme === 'dark' ? DarkTheme : DefaultTheme}>
       <RootStack.Navigator initialRouteName="MountainList">
         <RootStack.Screen name="MountainList" component={MountainList} />
         <RootStack.Screen

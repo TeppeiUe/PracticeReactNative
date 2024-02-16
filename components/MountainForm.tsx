@@ -1,7 +1,7 @@
 import {FC} from 'react';
 import {Mountains} from '../models/ClimbingPlan';
 import {usePrefecturesContext} from '../hooks/PrefecturesContext';
-import {Input, CheckBox} from '@rneui/themed';
+import {Input, CheckBox, useTheme} from '@rneui/themed';
 import {MultiSelect} from 'react-native-element-dropdown';
 import {StyleSheet, View} from 'react-native';
 import {checkPositiveNumber} from '../utils/validation';
@@ -24,6 +24,7 @@ type MountainFormProps<T = Mountains> = {
 export const MountainForm: FC<MountainFormProps> = props => {
   const {disabled = true, handleValueChange} = props;
   const prefectures = usePrefecturesContext();
+  const {theme} = useTheme();
 
   /**
    * 山データのコールバック
@@ -78,6 +79,10 @@ export const MountainForm: FC<MountainFormProps> = props => {
             handleInputChange({prefecture_id});
           }}
           disable={disabled}
+          containerStyle={{backgroundColor: theme.colors.background}}
+          activeColor={
+            theme.mode === 'dark' ? theme.colors.searchBg : undefined
+          }
           placeholderStyle={styles.placeholderStyle}
           selectedStyle={styles.selectedStyle}
         />
@@ -90,8 +95,6 @@ export const MountainForm: FC<MountainFormProps> = props => {
           handleInputChange({weather_view});
         }}
         disabled={disabled}
-        containerStyle={styles.containerStyle}
-        textStyle={styles.textStyle}
       />
       <CheckBox
         title="logical delete"
@@ -101,8 +104,6 @@ export const MountainForm: FC<MountainFormProps> = props => {
           handleInputChange({logical_delete});
         }}
         disabled={disabled}
-        containerStyle={styles.containerStyle}
-        textStyle={styles.textStyle}
       />
     </>
   );
@@ -121,12 +122,5 @@ const styles = StyleSheet.create({
   },
   selectedStyle: {
     borderRadius: 12,
-  },
-  textStyle: {
-    fontSize: 16,
-    color: '#86939e',
-  },
-  containerStyle: {
-    backgroundColor: 'transparent',
   },
 });

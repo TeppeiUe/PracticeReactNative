@@ -1,9 +1,10 @@
 import {FC, useState} from 'react';
-import {Dialog} from '@rneui/themed';
+import {Dialog, useTheme} from '@rneui/themed';
 import {PlanForm} from './PlanForm';
 import {Plans, executeSql} from '../models/ClimbingPlan';
 import {useMountainIdContext} from '../hooks/MountainIdContext';
 import {ScrollView, StyleSheet} from 'react-native';
+import {ConfirmDialog} from './ConfirmDialog';
 
 /**
  * 計画登録コンポーネントのプロパティ
@@ -22,7 +23,11 @@ export const PlanRegister: FC<PlanRegisterProps> = props => {
   const {visible, setVisible} = props;
   // 登録計画データ制御
   const [plan, setPlan] = useState<Plans>(new Plans());
+  // 確認ダイアログ制御
+  const [registerVisible, setRegisterVisible] = useState<boolean>(false);
+
   const {mountainId} = useMountainIdContext();
+  const {theme} = useTheme();
 
   /**
    * ダイアログを閉じる場合の処理
@@ -87,9 +92,26 @@ export const PlanRegister: FC<PlanRegisterProps> = props => {
         />
       </ScrollView>
       <Dialog.Actions>
-        <Dialog.Button title="save" onPress={() => handleSaveClick()} />
-        <Dialog.Button title="cancel" onPress={() => closeDialog()} />
+        <Dialog.Button
+          title="Save"
+          titleStyle={{color: theme.colors.primary}}
+          onPress={() => setRegisterVisible(true)}
+        />
+        <Dialog.Button
+          title="Cancel"
+          titleStyle={{color: theme.colors.warning}}
+          onPress={closeDialog}
+        />
       </Dialog.Actions>
+
+      {/* 登録確認ダイアログ */}
+      <ConfirmDialog
+        title="Would you like to register?"
+        visible={registerVisible}
+        setVisible={setRegisterVisible}
+        okCallback={handleSaveClick}
+        cancelCallback={closeDialog}
+      />
     </Dialog>
   );
 };

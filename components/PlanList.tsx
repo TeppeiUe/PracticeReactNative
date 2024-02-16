@@ -3,7 +3,7 @@ import {MountainTabParamList} from '../navigator/MountainTabNavigator';
 import {useCallback, useRef, useState} from 'react';
 import {Plans, executeSql} from '../models/ClimbingPlan';
 import {RefreshControl, ScrollView, StyleSheet, View} from 'react-native';
-import {FAB, Icon, ListItem} from '@rneui/themed';
+import {FAB, Icon, ListItem, useTheme} from '@rneui/themed';
 import {CompositeScreenProps, useFocusEffect} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../navigator/RootStackNavigator';
@@ -38,6 +38,7 @@ export const PlanList = ({}: CompositeScreenProps<
   const {mountainId} = useMountainIdContext();
   // 削除する計画ID管理
   const deleteIdRef = useRef<number>(0);
+  const {theme} = useTheme();
 
   /**
    * 計画データ取得
@@ -146,7 +147,7 @@ export const PlanList = ({}: CompositeScreenProps<
                   </ListItem.Content>
                   <Icon
                     name={editItems.includes(plan.id!) ? 'save' : 'edit'}
-                    reverse
+                    color={theme.colors.secondary}
                     onPress={() => {
                       editItems.includes(plan.id!)
                         ? handleSaveClick(plan.id!)
@@ -155,7 +156,7 @@ export const PlanList = ({}: CompositeScreenProps<
                   />
                   <Icon
                     name="delete"
-                    reverse
+                    color={theme.colors.warning}
                     onPress={() => handleClickDelete(plan.id!)}
                   />
                 </View>
@@ -181,6 +182,7 @@ export const PlanList = ({}: CompositeScreenProps<
       {/* 登録ボタン */}
       <FAB
         icon={{name: 'add', color: 'white'}}
+        color={theme.colors.primary}
         size="small"
         placement="right"
         onPress={() => setRegisterVisible(true)}
@@ -191,7 +193,7 @@ export const PlanList = ({}: CompositeScreenProps<
 
       {/* 削除確認ダイアログ */}
       <ConfirmDialog
-        title="delete it?"
+        title="Would you like to delete?"
         visible={deleteVisible}
         setVisible={setDeleteVisible}
         okCallback={deleteOkCallback}

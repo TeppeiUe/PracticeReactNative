@@ -1,7 +1,8 @@
 import {FC, useState} from 'react';
-import {Dialog} from '@rneui/themed';
+import {Dialog, useTheme} from '@rneui/themed';
 import {MountainForm} from './MountainForm';
 import {Mountains, executeSql} from '../models/ClimbingPlan';
+import {ConfirmDialog} from './ConfirmDialog';
 
 /**
  * 山登録コンポーネントのプロパティ
@@ -20,6 +21,10 @@ export const MountainRegister: FC<MountainRegisterProps> = props => {
   const {visible, setVisible} = props;
   // 登録山データ制御
   const [mountain, setMountain] = useState<Mountains>(new Mountains());
+  // 確認ダイアログ制御
+  const [registerVisible, setRegisterVisible] = useState<boolean>(false);
+
+  const {theme} = useTheme();
 
   /**
    * ダイアログを閉じる場合の処理
@@ -83,9 +88,26 @@ export const MountainRegister: FC<MountainRegisterProps> = props => {
         disabled={false}
       />
       <Dialog.Actions>
-        <Dialog.Button title="save" onPress={() => handleSaveClick()} />
-        <Dialog.Button title="cancel" onPress={() => closeDialog()} />
+        <Dialog.Button
+          title="Save"
+          titleStyle={{color: theme.colors.primary}}
+          onPress={() => setRegisterVisible(true)}
+        />
+        <Dialog.Button
+          title="Cancel"
+          titleStyle={{color: theme.colors.warning}}
+          onPress={closeDialog}
+        />
       </Dialog.Actions>
+
+      {/* 登録確認ダイアログ */}
+      <ConfirmDialog
+        title="Would you like to register?"
+        visible={registerVisible}
+        setVisible={setRegisterVisible}
+        okCallback={handleSaveClick}
+        cancelCallback={closeDialog}
+      />
     </Dialog>
   );
 };

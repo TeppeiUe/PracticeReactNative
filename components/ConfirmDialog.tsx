@@ -1,5 +1,5 @@
 import {FC} from 'react';
-import {Dialog, Text} from '@rneui/themed';
+import {Dialog, Text, useTheme} from '@rneui/themed';
 
 /**
  * 確認ダイアログコンポーネントのプロパティ
@@ -24,6 +24,7 @@ type ConfirmDialogProps = {
  */
 export const ConfirmDialog: FC<ConfirmDialogProps> = props => {
   const {title, text, visible, setVisible, okCallback, cancelCallback} = props;
+  const {theme} = useTheme();
 
   /**
    * ダイアログを閉じる場合の処理
@@ -53,8 +54,16 @@ export const ConfirmDialog: FC<ConfirmDialogProps> = props => {
       <Dialog.Title title={title} />
       {text !== undefined && <Text>{text}</Text>}
       <Dialog.Actions>
-        <Dialog.Button title="ok" onPress={() => handleOkClick()} />
-        <Dialog.Button title="cancel" onPress={() => handleCancel()} />
+        <Dialog.Button
+          title="Ok"
+          titleStyle={{color: theme.colors.primary}}
+          onPress={() => handleOkClick()}
+        />
+        <Dialog.Button
+          title="Cancel"
+          titleStyle={{color: theme.colors.warning}}
+          onPress={() => handleCancel()}
+        />
       </Dialog.Actions>
     </Dialog>
   );

@@ -83,8 +83,6 @@ export const PlanForm: FC<PlanFormProps> = props => {
           handleInputChange({is_car_access});
         }}
         disabled={disabled}
-        containerStyle={styles.containerStyle}
-        textStyle={styles.textStyle}
       />
     </>
   );
@@ -100,12 +98,5 @@ const styles = StyleSheet.create({
     color: '#86939e',
     fontFamily: 'sans-serif',
     fontWeight: 'bold',
-  },
-  textStyle: {
-    fontSize: 16,
-    color: '#86939e',
-  },
-  containerStyle: {
-    backgroundColor: 'transparent',
   },
 });
