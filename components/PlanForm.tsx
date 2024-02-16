@@ -56,6 +56,11 @@ export const PlanForm: FC<PlanFormProps> = props => {
         <Text style={styles.placeholderStyle}>access_information</Text>
         <AccessInformationForm
           accessInformation={JSON.parse(props.plan.access_information)}
+          disabled={disabled}
+          handleValueChange={a => {
+            const access_information = JSON.stringify(a);
+            handleInputChange({access_information});
+          }}
         />
       </View>
       <CheckBox

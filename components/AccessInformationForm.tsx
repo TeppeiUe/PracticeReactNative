@@ -1,7 +1,7 @@
 import {FC, useState} from 'react';
 import {AccessInformation} from '../models/AccessInformation';
 import {ListItem, Icon, Button} from '@rneui/themed';
-import {StyleSheet} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 
 type AccessInformationFormProps<T> = {
   disabled?: boolean;
@@ -32,25 +32,37 @@ const AccessInformationInnerForm: FC<
       <ListItem.Input
         label="departure name"
         disabled={disabled}
-        onChangeText={name => handleInputChange({departure: {name}})}>
+        onChangeText={name => {
+          const departure = {...accessInformation.departure, ...{name}};
+          handleInputChange({departure});
+        }}>
         {accessInformation.departure?.name}
       </ListItem.Input>
       <ListItem.Input
         label="departure time"
         disabled={disabled}
-        onChangeText={time => handleInputChange({departure: {time}})}>
+        onChangeText={time => {
+          const departure = {...accessInformation.departure, ...{time}};
+          handleInputChange({departure});
+        }}>
         {accessInformation.departure?.time}
       </ListItem.Input>
       <ListItem.Input
         label="arrival name"
         disabled={disabled}
-        onChangeText={name => handleInputChange({arrival: {name}})}>
+        onChangeText={name => {
+          const arrival = {...accessInformation.arrival, ...{name}};
+          handleInputChange({arrival});
+        }}>
         {accessInformation.arrival?.name}
       </ListItem.Input>
       <ListItem.Input
         label="arrival time"
         disabled={disabled}
-        onChangeText={time => handleInputChange({arrival: {time}})}>
+        onChangeText={time => {
+          const arrival = {...accessInformation.arrival, ...{time}};
+          handleInputChange({arrival});
+        }}>
         {accessInformation.arrival?.time}
       </ListItem.Input>
     </>
@@ -95,14 +107,20 @@ export const AccessInformationForm: FC<
           containerStyle={styles.containerStyle}
           isExpanded={expandedItems.includes(i)}
           content={
-            <Button
-              color="secondary"
-              size="sm"
-              radius="sm"
-              icon={{name: 'delete', color: 'white'}}
-              disabled={disabled}
-              onPress={() => handleInputDelete(i)}
-            />
+            <View style={styles.container}>
+              <ListItem.Content>
+                <ListItem.Title>
+                  {`${a.departure?.name ?? ''} -> ${a.arrival?.name ?? ''}`}
+                </ListItem.Title>
+                <ListItem.Subtitle>{a.route ?? ''}</ListItem.Subtitle>
+              </ListItem.Content>
+              <Icon
+                name="delete"
+                reverse
+                disabled={disabled}
+                onPress={() => handleInputDelete(i)}
+              />
+            </View>
           }
           onPress={() =>
             expandedItems.includes(i)
@@ -116,7 +134,7 @@ export const AccessInformationForm: FC<
           />
         </ListItem.Accordion>
       ))}
-      <Button size="sm" disabled={disabled} onPress={() => handleInputAdd}>
+      <Button size="sm" disabled={disabled} onPress={() => handleInputAdd()}>
         <Icon name="add" color="white" />
       </Button>
     </>
@@ -124,6 +142,10 @@ export const AccessInformationForm: FC<
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   containerStyle: {
     backgroundColor: 'transparent',
   },
