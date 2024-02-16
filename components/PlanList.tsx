@@ -2,14 +2,15 @@ import {MaterialTopTabScreenProps} from '@react-navigation/material-top-tabs';
 import {MountainTabParamList} from '../navigator/MountainTabNavigator';
 import {useCallback, useState} from 'react';
 import {Plans, executeSql} from '../models/ClimbingPlan';
-import {ScrollView, StyleSheet, View} from 'react-native';
-import {Icon, ListItem} from '@rneui/themed';
+import {RefreshControl, ScrollView, StyleSheet, View} from 'react-native';
+import {FAB, Icon, ListItem} from '@rneui/themed';
 import {CompositeScreenProps, useFocusEffect} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../navigator/RootStackNavigator';
 import {PlanStackParamList} from '../navigator/PlanStackNavigator';
 import {useMountainIdContext} from '../hooks/MountainIdContext';
 import {PlanForm} from './PlanForm';
+import {PlanRegister} from './PlanRegister';
 
 export const PlanList = ({}: CompositeScreenProps<
   NativeStackScreenProps<PlanStackParamList, 'PlanList'>,
@@ -19,26 +20,75 @@ export const PlanList = ({}: CompositeScreenProps<
   >
 >) => {
   const [planList, setPlanList] = useState<Plans[]>([]);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
   const [expandedItems, setExpandedItems] = useState<number[]>([]);
   const [editItems, setEditItems] = useState<number[]>([]);
+  const [visible, setVisible] = useState<boolean>(false);
   const {mountainId} = useMountainIdContext();
 
-  useFocusEffect(
-    useCallback(() => {
+  const fetch = useCallback(
+    () =>
       executeSql(
         'SELECT * FROM plans WHERE mountain_id = ?',
         [mountainId],
         (_, res) => setPlanList(res.rows.raw()),
-      );
-    }, [mountainId]),
+      ),
+    [mountainId],
   );
 
-  const handleClickDelete = (id: number) =>
-    console.log(`delete plan id is ${id}`);
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetch();
+    setTimeout(() => setRefreshing(false), 1000);
+  };
+
+  useFocusEffect(fetch);
+
+  const handleSaveClick = (id: number) => {
+    const {
+      name,
+      url,
+      effective_height,
+      effective_distance,
+      access_information,
+      is_car_access,
+    } = planList.filter(p => p.id === id)[0];
+    const query = `
+      UPDATE plans SET
+      name = ?,
+      url = ?,
+      effective_height = ?,
+      effective_distance = ?,
+      access_information = ?,
+      is_car_access = ?
+      WHERE id = ?
+    `;
+    const params = [
+      name,
+      url,
+      effective_height,
+      effective_distance,
+      access_information,
+      is_car_access,
+      id,
+    ];
+    executeSql(query, params, (_, res) => console.log(JSON.stringify(res)));
+    setEditItems(editItems.filter(i => i !== id));
+  };
+
+  const handleClickDelete = (id: number) => {
+    executeSql('DELETE FROM plans WHERE id = ?', [id], (_, res) =>
+      console.log(JSON.stringify(res)),
+    );
+    setPlanList(planList.filter(i => i.id !== id));
+  };
 
   return (
     <>
-      <ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }>
         {planList.map(plan => {
           const {effective_distance} = plan;
           return (
@@ -56,11 +106,11 @@ export const PlanList = ({}: CompositeScreenProps<
                   <Icon
                     name={editItems.includes(plan.id!) ? 'save' : 'edit'}
                     reverse
-                    onPress={() =>
+                    onPress={() => {
                       editItems.includes(plan.id!)
-                        ? setEditItems(editItems.filter(i => i !== plan.id))
-                        : setEditItems([...editItems, plan.id!])
-                    }
+                        ? handleSaveClick(plan.id!)
+                        : setEditItems([...editItems, plan.id!]);
+                    }}
                   />
                   <Icon
                     name="delete"
@@ -86,6 +136,17 @@ export const PlanList = ({}: CompositeScreenProps<
           );
         })}
       </ScrollView>
+
+      {/* 登録ボタン */}
+      <FAB
+        icon={{name: 'add', color: 'white'}}
+        size="small"
+        placement="right"
+        onPress={() => setVisible(true)}
+      />
+
+      {/* 登録ダイアログ */}
+      <PlanRegister visible={visible} setVisible={setVisible} />
     </>
   );
 };

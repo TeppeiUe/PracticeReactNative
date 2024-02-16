@@ -71,7 +71,7 @@ export class Plans {
   /** 累積距離 */
   effective_distance: number | null = null;
   /** アクセス情報 */
-  access_information: string = '';
+  access_information: string = '[]';
   /** 備考 */
   remarks: string | null = null;
   /** 車でアクセスフラグ */

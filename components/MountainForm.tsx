@@ -4,6 +4,7 @@ import {usePrefecturesContext} from '../hooks/PrefecturesContext';
 import {Input, CheckBox} from '@rneui/themed';
 import {MultiSelect} from 'react-native-element-dropdown';
 import {StyleSheet, View} from 'react-native';
+import {checkPositiveNumber} from '../utils/validation';
 
 type MountainFormProps<T = Mountains> = {
   disabled?: boolean;
@@ -40,7 +41,7 @@ export const MountainForm: FC<MountainFormProps> = props => {
         label="latitude"
         disabled={disabled}
         onChangeText={t => {
-          const latitude = Number(t);
+          const latitude = checkPositiveNumber(t) ? Number(t) : null;
           handleInputChange({latitude});
         }}>
         {props.mountain.latitude}
@@ -49,7 +50,7 @@ export const MountainForm: FC<MountainFormProps> = props => {
         label="longitude"
         disabled={disabled}
         onChangeText={t => {
-          const longitude = Number(t);
+          const longitude = checkPositiveNumber(t) ? Number(t) : null;
           handleInputChange({longitude});
         }}>
         {props.mountain.longitude}

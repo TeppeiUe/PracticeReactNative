@@ -3,6 +3,7 @@ import {Plans} from '../models/ClimbingPlan';
 import {Input, CheckBox, Text} from '@rneui/themed';
 import {StyleSheet, View} from 'react-native';
 import {AccessInformationForm} from './AccessInformationForm';
+import {checkNaturalNumber} from '../utils/validation';
 
 type PlanFormProps<T = Plans> = {
   disabled?: boolean;
@@ -35,19 +36,19 @@ export const PlanForm: FC<PlanFormProps> = props => {
         {props.plan.url}
       </Input>
       <Input
-        label="effective_height"
+        label="effective_height [m]"
         disabled={disabled}
         onChangeText={t => {
-          const effective_height = Number(t);
+          const effective_height = checkNaturalNumber(t) ? Number(t) : null;
           handleInputChange({effective_height});
         }}>
         {props.plan.effective_height}
       </Input>
       <Input
-        label="effective_distance"
+        label="effective_distance [m]"
         disabled={disabled}
         onChangeText={t => {
-          const effective_distance = Number(t);
+          const effective_distance = checkNaturalNumber(t) ? Number(t) : null;
           handleInputChange({effective_distance});
         }}>
         {props.plan.effective_distance}
