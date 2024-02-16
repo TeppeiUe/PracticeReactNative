@@ -1,6 +1,6 @@
 import {MaterialTopTabScreenProps} from '@react-navigation/material-top-tabs';
 import {MountainTabParamList} from '../navigator/MountainTabNavigator';
-import {useCallback, useState} from 'react';
+import {useCallback, useRef, useState} from 'react';
 import {Plans, executeSql} from '../models/ClimbingPlan';
 import {RefreshControl, ScrollView, StyleSheet, View} from 'react-native';
 import {FAB, Icon, ListItem} from '@rneui/themed';
@@ -11,6 +11,7 @@ import {PlanStackParamList} from '../navigator/PlanStackNavigator';
 import {useMountainIdContext} from '../hooks/MountainIdContext';
 import {PlanForm} from './PlanForm';
 import {PlanRegister} from './PlanRegister';
+import {ConfirmDialog} from './ConfirmDialog';
 
 export const PlanList = ({}: CompositeScreenProps<
   NativeStackScreenProps<PlanStackParamList, 'PlanList'>,
@@ -23,8 +24,10 @@ export const PlanList = ({}: CompositeScreenProps<
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [expandedItems, setExpandedItems] = useState<number[]>([]);
   const [editItems, setEditItems] = useState<number[]>([]);
-  const [visible, setVisible] = useState<boolean>(false);
+  const [registerVisible, setRegisterVisible] = useState<boolean>(false);
+  const [deleteVisible, setDeleteVisible] = useState<boolean>(false);
   const {mountainId} = useMountainIdContext();
+  const deleteIdRef = useRef<number>(0);
 
   const fetch = useCallback(
     () =>
@@ -77,11 +80,19 @@ export const PlanList = ({}: CompositeScreenProps<
   };
 
   const handleClickDelete = (id: number) => {
+    deleteIdRef.current = id;
+    setDeleteVisible(true);
+  };
+
+  const deleteOkCallback = () => {
+    const id = deleteIdRef.current;
     executeSql('DELETE FROM plans WHERE id = ?', [id], (_, res) =>
       console.log(JSON.stringify(res)),
     );
     setPlanList(planList.filter(i => i.id !== id));
   };
+
+  const deleteCancelCallback = () => (deleteIdRef.current = 0);
 
   return (
     <>
@@ -142,11 +153,20 @@ export const PlanList = ({}: CompositeScreenProps<
         icon={{name: 'add', color: 'white'}}
         size="small"
         placement="right"
-        onPress={() => setVisible(true)}
+        onPress={() => setRegisterVisible(true)}
       />
 
       {/* 登録ダイアログ */}
-      <PlanRegister visible={visible} setVisible={setVisible} />
+      <PlanRegister visible={registerVisible} setVisible={setRegisterVisible} />
+
+      {/* 削除確認ダイアログ */}
+      <ConfirmDialog
+        title="delete it?"
+        visible={deleteVisible}
+        setVisible={setDeleteVisible}
+        okCallback={deleteOkCallback}
+        cancelCallback={deleteCancelCallback}
+      />
     </>
   );
 };
