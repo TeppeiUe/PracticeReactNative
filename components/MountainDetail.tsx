@@ -4,12 +4,12 @@ import {useCallback, useState} from 'react';
 import {Mountains, executeSql} from '../models/ClimbingPlan';
 import {ScrollView} from 'react-native';
 import {MountainForm} from './MountainForm';
-import {FAB} from '@rneui/themed';
 import {CompositeScreenProps, useFocusEffect} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../navigator/RootStackNavigator';
 import {useMountainIdContext} from '../hooks/MountainIdContext';
 import {ConfirmDialog} from './ConfirmDialog';
+import {useSpeedDialSettingContext} from '../hooks/SpeedDialContext';
 
 /**
  * 山データ詳細表示コンポーネント
@@ -26,6 +26,7 @@ export const MountainDetail = ({}: CompositeScreenProps<
   const [visible, setVisible] = useState<boolean>(false);
 
   const {mountainId} = useMountainIdContext();
+  const {setActions} = useSpeedDialSettingContext();
 
   /**
    * 山データ取得
@@ -41,6 +42,19 @@ export const MountainDetail = ({}: CompositeScreenProps<
   );
 
   useFocusEffect(fetch);
+  useFocusEffect(
+    useCallback(
+      () =>
+        setActions([
+          {
+            icon: disabled ? 'edit' : 'save',
+            title: disabled ? 'Edit' : 'Save',
+            onPress: () => (disabled ? setDisabled(false) : setVisible(true)),
+          },
+        ]),
+      [disabled, setActions],
+    ),
+  );
 
   /**
    * 登録確認okの場合の処理
@@ -97,17 +111,6 @@ export const MountainDetail = ({}: CompositeScreenProps<
           disabled={disabled}
         />
       </ScrollView>
-
-      {/* 編集ボタン */}
-      <FAB
-        icon={{
-          name: disabled ? 'edit' : 'save',
-          color: 'white',
-        }}
-        size="small"
-        placement="right"
-        onPress={() => (disabled ? setDisabled(false) : setVisible(true))}
-      />
 
       {/* 登録確認ダイアログ */}
       <ConfirmDialog

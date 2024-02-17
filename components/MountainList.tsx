@@ -1,12 +1,14 @@
-import {useCallback, useEffect, useState} from 'react';
+import {useCallback, useState} from 'react';
 import {Mountains, executeSql} from '../models/ClimbingPlan';
-import {FAB, ListItem, useTheme} from '@rneui/themed';
+import {ListItem} from '@rneui/themed';
 import {RefreshControl, ScrollView} from 'react-native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../navigator/RootStackNavigator';
 import {usePrefecturesContext} from '../hooks/PrefecturesContext';
 import {MountainRegister} from './MountainRegister';
 import {useMountainIdContext} from '../hooks/MountainIdContext';
+import {useSpeedDialSettingContext} from '../hooks/SpeedDialContext';
+import {useFocusEffect} from '@react-navigation/native';
 
 /**
  * 山リスト表示コンポーネント
@@ -23,7 +25,7 @@ export const MountainList = ({
 
   const prefectures = usePrefecturesContext();
   const {setMountainId} = useMountainIdContext();
-  const {theme} = useTheme();
+  const {setActions} = useSpeedDialSettingContext();
 
   /**
    * 画面リフレッシュ
@@ -42,7 +44,20 @@ export const MountainList = ({
       setMountainList(res.rows.raw()),
     );
 
-  useEffect(() => fetch(), []);
+  useFocusEffect(useCallback(fetch, []));
+  useFocusEffect(
+    useCallback(
+      () =>
+        setActions([
+          {
+            icon: 'add',
+            title: 'Register',
+            onPress: () => setVisible(true),
+          },
+        ]),
+      [setActions],
+    ),
+  );
 
   return (
     <>
@@ -77,15 +92,6 @@ export const MountainList = ({
           </ListItem>
         ))}
       </ScrollView>
-
-      {/* 登録ボタン */}
-      <FAB
-        icon={{name: 'add', color: 'white'}}
-        color={theme.colors.primary}
-        size="small"
-        placement="right"
-        onPress={() => setVisible(true)}
-      />
 
       {/* 登録ダイアログ */}
       <MountainRegister visible={visible} setVisible={setVisible} />

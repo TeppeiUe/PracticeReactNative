@@ -148,7 +148,7 @@ export const AccessInformationForm: FC<
               </ListItem.Content>
               <Icon
                 name="delete"
-                color={theme.colors.warning}
+                color={theme.colors.secondary}
                 disabled={disabled}
                 onPress={() => handleInputDelete(i)}
               />
@@ -169,7 +169,7 @@ export const AccessInformationForm: FC<
       <View style={styles.listItemAddition}>
         <Icon
           name="add"
-          color={theme.colors.primary}
+          color={theme.colors.secondary}
           disabled={disabled}
           onPress={() => handleInputAdd()}
         />

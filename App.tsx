@@ -4,6 +4,7 @@ import {RootStackNavigator} from './navigator/RootStackNavigator';
 import {MountainIdProvider} from './hooks/MountainIdProvider';
 import {ThemeProvider, createTheme} from '@rneui/themed';
 import {useColorScheme} from 'react-native';
+import {SpeedDialProvider} from './hooks/SpeedDialProvider';
 
 const theme = createTheme({
   darkColors: {
@@ -36,7 +37,9 @@ export const App = () => {
       <SafeAreaProvider>
         <PrefecturesProvider>
           <MountainIdProvider>
-            <RootStackNavigator />
+            <SpeedDialProvider>
+              <RootStackNavigator />
+            </SpeedDialProvider>
           </MountainIdProvider>
         </PrefecturesProvider>
       </SafeAreaProvider>
