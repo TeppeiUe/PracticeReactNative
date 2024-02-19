@@ -22,11 +22,6 @@ const theme = createTheme({
         backgroundColor: 'transparent',
       },
     },
-    Icon: {
-      size: 18,
-      reverseColor: 'white',
-      reverse: true,
-    },
   },
 });
 

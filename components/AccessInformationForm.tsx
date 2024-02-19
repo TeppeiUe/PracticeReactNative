@@ -1,10 +1,11 @@
-import {FC, useState} from 'react';
+import {FC, useRef, useState} from 'react';
 import {AccessInformation} from '../models/AccessInformation';
-import {ListItem, Icon, useTheme, Chip} from '@rneui/themed';
-import {StyleSheet, View} from 'react-native';
+import {ListItem, useTheme, Chip} from '@rneui/themed';
+import {StyleSheet} from 'react-native';
 import RNDateTimePicker, {
   DateTimePickerEvent,
 } from '@react-native-community/datetimepicker';
+import {ConfirmDialog} from './ConfirmDialog';
 
 /**
  * アクセス情報フォームコンポーネントのプロパティ
@@ -160,6 +161,10 @@ export const AccessInformationForm: FC<
   const {disabled = true, handleValueChange} = props;
   /** アコーディオン開閉制御 */
   const [expandedItems, setExpandedItems] = useState<number[]>([]);
+  // 削除確認ダイアログ表示制御
+  const [visible, setVisible] = useState<boolean>(false);
+  // 削除対象アクセス情報のインデックス管理
+  const deletionRef = useRef<number>(0);
 
   const {theme} = useTheme();
 
@@ -178,12 +183,11 @@ export const AccessInformationForm: FC<
 
   /**
    * アクセス情報データ削除
-   * @param index アクセス情報リストデータのインデックス
    */
-  const handleInputDelete = (index: number) => {
-    const a: AccessInformation[] = [...props.accessInformation];
-    a.splice(index, 1);
+  const handleInputDelete = () => {
     if (handleValueChange !== undefined) {
+      const a: AccessInformation[] = [...props.accessInformation];
+      a.splice(deletionRef.current, 1);
       handleValueChange(a);
     }
   };
@@ -202,26 +206,20 @@ export const AccessInformationForm: FC<
       {props.accessInformation.map((a, i) => (
         <ListItem.Accordion
           key={i}
-          topDivider
           bottomDivider
-          noIcon
           containerStyle={styles.containerStyle}
           isExpanded={expandedItems.includes(i)}
+          onLongPress={() => {
+            deletionRef.current = i;
+            setVisible(true);
+          }}
           content={
-            <View style={styles.listItemAccordionContent}>
-              <ListItem.Content>
-                <ListItem.Title>
-                  {`${a.departure?.name ?? ''} -> ${a.arrival?.name ?? ''}`}
-                </ListItem.Title>
-                <ListItem.Subtitle>{a.route ?? ''}</ListItem.Subtitle>
-              </ListItem.Content>
-              <Icon
-                name="delete"
-                color={theme.colors.secondary}
-                disabled={disabled}
-                onPress={() => handleInputDelete(i)}
-              />
-            </View>
+            <ListItem.Content>
+              <ListItem.Title>
+                {`${a.departure?.name ?? ''} -> ${a.arrival?.name ?? ''}`}
+              </ListItem.Title>
+              <ListItem.Subtitle>{a.route ?? ''}</ListItem.Subtitle>
+            </ListItem.Content>
           }
           onPress={() =>
             expandedItems.includes(i)
@@ -235,26 +233,32 @@ export const AccessInformationForm: FC<
           />
         </ListItem.Accordion>
       ))}
-      <View style={styles.listItemAddition}>
-        <Icon
-          name="add"
-          color={theme.colors.secondary}
-          disabled={disabled}
-          onPress={() => handleInputAdd()}
+
+      {/* 新規アクセス情報データ追加 */}
+      {!disabled && (
+        <Chip
+          icon={{
+            name: 'add',
+            color: theme.colors.primary,
+          }}
+          type="outline"
+          title="access information"
+          onPress={handleInputAdd}
         />
-      </View>
+      )}
+
+      {/* 削除確認ダイアログ */}
+      <ConfirmDialog
+        title="Would you like to delete?"
+        visible={visible}
+        setVisible={setVisible}
+        okCallback={handleInputDelete}
+      />
     </>
   );
 };
 
 const styles = StyleSheet.create({
-  listItemAccordionContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  listItemAddition: {
-    alignItems: 'center',
-  },
   containerStyle: {
     backgroundColor: 'transparent',
   },
