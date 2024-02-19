@@ -1,7 +1,7 @@
 import {FC} from 'react';
 import {Plans} from '../models/ClimbingPlan';
-import {Input, CheckBox, Text} from '@rneui/themed';
-import {StyleSheet, View} from 'react-native';
+import {Input, CheckBox, Text, Chip, useTheme} from '@rneui/themed';
+import {Linking, StyleSheet, View} from 'react-native';
 import {AccessInformationForm} from './AccessInformationForm';
 import {checkNaturalNumber} from '../utils/validation';
 
@@ -22,6 +22,7 @@ type PlanFormProps<T = Plans> = {
  */
 export const PlanForm: FC<PlanFormProps> = props => {
   const {disabled = true, handleValueChange} = props;
+  const {theme} = useTheme();
 
   /**
    * 計画データのコールバック
@@ -29,6 +30,15 @@ export const PlanForm: FC<PlanFormProps> = props => {
   const handleInputChange = (val: {[K in keyof Plans]?: Plans[K]}) => {
     if (handleValueChange !== undefined) {
       handleValueChange({...props.plan, ...val});
+    }
+  };
+
+  /**
+   * リンクを開く
+   */
+  const openURL = async (url: string | null) => {
+    if (url !== null) {
+      await Linking.openURL(url).catch(e => console.error(JSON.stringify(e)));
     }
   };
 
@@ -40,12 +50,24 @@ export const PlanForm: FC<PlanFormProps> = props => {
         onChangeText={name => handleInputChange({name})}>
         {props.plan.name}
       </Input>
-      <Input
-        label="url"
-        disabled={disabled}
-        onChangeText={url => handleInputChange({url})}>
-        {props.plan.url}
-      </Input>
+      {disabled ? (
+        <Chip
+          icon={{
+            name: 'pageview',
+            color: theme.colors.primary,
+          }}
+          type="outline"
+          title="page view"
+          onPress={() => openURL(props.plan.url)}
+        />
+      ) : (
+        <Input
+          label="url"
+          disabled={disabled}
+          onChangeText={url => handleInputChange({url})}>
+          {props.plan.url}
+        </Input>
+      )}
       <Input
         label="effective_height [m]"
         disabled={disabled}

@@ -1,9 +1,9 @@
 import {FC} from 'react';
 import {Mountains} from '../models/ClimbingPlan';
 import {usePrefecturesContext} from '../hooks/PrefecturesContext';
-import {Input, CheckBox, useTheme} from '@rneui/themed';
+import {Input, CheckBox, useTheme, Chip} from '@rneui/themed';
 import {MultiSelect} from 'react-native-element-dropdown';
-import {StyleSheet, View} from 'react-native';
+import {Linking, StyleSheet, View} from 'react-native';
 import {checkPositiveNumber} from '../utils/validation';
 
 /**
@@ -35,6 +35,17 @@ export const MountainForm: FC<MountainFormProps> = props => {
     }
   };
 
+  /**
+   * リンクを開く
+   */
+  const openURL = async (latitude: number | null, longitude: number | null) => {
+    if (latitude !== null && longitude !== null) {
+      const url = `https://maps.google.co.jp/maps?q=${latitude},${longitude}&t=p`;
+      console.log(url);
+      await Linking.openURL(url).catch(e => console.error(JSON.stringify(e)));
+    }
+  };
+
   return (
     <>
       <Input
@@ -49,24 +60,42 @@ export const MountainForm: FC<MountainFormProps> = props => {
         onChangeText={kana => handleInputChange({kana})}>
         {props.mountain.kana}
       </Input>
-      <Input
-        label="latitude"
-        disabled={disabled}
-        onChangeText={t => {
-          const latitude = checkPositiveNumber(t) ? Number(t) : null;
-          handleInputChange({latitude});
-        }}>
-        {props.mountain.latitude}
-      </Input>
-      <Input
-        label="longitude"
-        disabled={disabled}
-        onChangeText={t => {
-          const longitude = checkPositiveNumber(t) ? Number(t) : null;
-          handleInputChange({longitude});
-        }}>
-        {props.mountain.longitude}
-      </Input>
+      {!disabled && (
+        <Input
+          label="latitude"
+          disabled={disabled}
+          onChangeText={t => {
+            const latitude = checkPositiveNumber(t) ? Number(t) : null;
+            handleInputChange({latitude});
+          }}>
+          {props.mountain.latitude}
+        </Input>
+      )}
+      {!disabled && (
+        <Input
+          label="longitude"
+          disabled={disabled}
+          onChangeText={t => {
+            const longitude = checkPositiveNumber(t) ? Number(t) : null;
+            handleInputChange({longitude});
+          }}>
+          {props.mountain.longitude}
+        </Input>
+      )}
+      {props.mountain.latitude !== null &&
+        props.mountain.longitude !== null && (
+          <Chip
+            icon={{
+              name: 'pageview',
+              color: theme.colors.primary,
+            }}
+            type="outline"
+            title="Google Map"
+            onPress={() =>
+              openURL(props.mountain.latitude, props.mountain.longitude)
+            }
+          />
+        )}
       <View style={styles.container}>
         <MultiSelect
           placeholder="prefecture"

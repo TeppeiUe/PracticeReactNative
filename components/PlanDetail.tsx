@@ -77,35 +77,35 @@ export const PlanDetail = ({
    * 登録確認okの場合の処理
    */
   const registerOkCallback = () => {
-    // const {
-    //   name,
-    //   url,
-    //   effective_height,
-    //   effective_distance,
-    //   access_information,
-    //   is_car_access,
-    //   id,
-    // } = plan;
-    // const query = `
-    //   UPDATE plans SET
-    //   name = ?,
-    //   url = ?,
-    //   effective_height = ?,
-    //   effective_distance = ?,
-    //   access_information = ?,
-    //   is_car_access = ?
-    //   WHERE id = ?
-    // `;
-    // const params = [
-    //   name,
-    //   url,
-    //   effective_height,
-    //   effective_distance,
-    //   access_information,
-    //   is_car_access,
-    //   id,
-    // ];
-    // executeSql(query, params, (_, res) => console.log(JSON.stringify(res)));
+    const {
+      name,
+      url,
+      effective_height,
+      effective_distance,
+      access_information,
+      is_car_access,
+      id,
+    } = plan;
+    const query = `
+      UPDATE plans SET
+      name = ?,
+      url = ?,
+      effective_height = ?,
+      effective_distance = ?,
+      access_information = ?,
+      is_car_access = ?
+      WHERE id = ?
+    `;
+    const params = [
+      name,
+      url,
+      effective_height,
+      effective_distance,
+      access_information,
+      is_car_access,
+      id,
+    ];
+    executeSql(query, params, (_, res) => console.log(JSON.stringify(res)));
     setDisabled(true);
   };
 
@@ -121,9 +121,9 @@ export const PlanDetail = ({
    * 削除確認okの場合の処理
    */
   const deleteOkCallback = () => {
-    // executeSql('DELETE FROM plans WHERE id = ?', [plan.id], (_, res) =>
-    //   console.log(JSON.stringify(res)),
-    // );
+    executeSql('DELETE FROM plans WHERE id = ?', [plan.id], (_, res) =>
+      console.log(JSON.stringify(res)),
+    );
     navigation.goBack();
   };
 

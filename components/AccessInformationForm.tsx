@@ -207,7 +207,7 @@ export const AccessInformationForm: FC<
         <ListItem.Accordion
           key={i}
           bottomDivider
-          containerStyle={styles.containerStyle}
+          containerStyle={styles.listItemAccordionContainerStyle}
           isExpanded={expandedItems.includes(i)}
           onLongPress={() => {
             deletionRef.current = i;
@@ -243,6 +243,7 @@ export const AccessInformationForm: FC<
           }}
           type="outline"
           title="access information"
+          containerStyle={styles.chipContainerStyle}
           onPress={handleInputAdd}
         />
       )}
@@ -259,7 +260,10 @@ export const AccessInformationForm: FC<
 };
 
 const styles = StyleSheet.create({
-  containerStyle: {
+  listItemAccordionContainerStyle: {
     backgroundColor: 'transparent',
+  },
+  chipContainerStyle: {
+    marginRight: 'auto',
   },
 });

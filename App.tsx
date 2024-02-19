@@ -22,6 +22,13 @@ const theme = createTheme({
         backgroundColor: 'transparent',
       },
     },
+    Chip: {
+      containerStyle: {
+        alignSelf: 'center',
+        marginLeft: 'auto',
+        marginVertical: 5,
+      },
+    },
   },
 });
 
