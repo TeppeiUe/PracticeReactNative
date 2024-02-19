@@ -1,7 +1,10 @@
 import {FC, useState} from 'react';
 import {AccessInformation} from '../models/AccessInformation';
-import {ListItem, Icon, useTheme} from '@rneui/themed';
+import {ListItem, Icon, useTheme, Chip} from '@rneui/themed';
 import {StyleSheet, View} from 'react-native';
+import RNDateTimePicker, {
+  DateTimePickerEvent,
+} from '@react-native-community/datetimepicker';
 
 /**
  * アクセス情報フォームコンポーネントのプロパティ
@@ -22,6 +25,12 @@ const AccessInformationInnerForm: FC<
   AccessInformationFormProps<AccessInformation>
 > = props => {
   const {disabled = true, accessInformation, handleValueChange} = props;
+  // departure time picker表示制御
+  const [departureVisible, setDepartureVisible] = useState<boolean>(false);
+  // arrival time picker表示制御
+  const [arrivalVisible, setArrivalVisible] = useState<boolean>(false);
+
+  const {theme} = useTheme();
 
   /**
    * アクセス情報データのコールバック
@@ -32,6 +41,36 @@ const AccessInformationInnerForm: FC<
     if (handleValueChange !== undefined) {
       handleValueChange({...props.accessInformation, ...val});
     }
+  };
+
+  /**
+   * Datetime pickerから時間取得
+   */
+  const getTimeStringFromPicker = (event: DateTimePickerEvent, date?: Date) =>
+    event.type !== 'dismissed'
+      ? date?.toLocaleTimeString().replace(':00', '') ?? null
+      : null;
+
+  /**
+   * 画面表示用の時間取得
+   */
+  const getTimeString = (time?: string | null) => time ?? '--:--';
+
+  /**
+   * Datetime pickerの初期表示用日時生成
+   */
+  const setDate = (time?: string) => {
+    const date = new Date();
+    if (time === undefined) {
+      return date;
+    }
+    const regExp = new RegExp(/^\d{2}:\d{2}$/);
+    if (regExp.test(time)) {
+      const [hours, minutes] = time.split(':');
+      date.setHours(Number(hours));
+      date.setMinutes(Number(minutes));
+    }
+    return date;
   };
 
   return (
@@ -51,15 +90,30 @@ const AccessInformationInnerForm: FC<
         }}>
         {accessInformation.departure?.name}
       </ListItem.Input>
-      <ListItem.Input
-        label="departure time"
+      <Chip
+        icon={{
+          name: 'schedule',
+          color: disabled ? theme.colors.disabled : theme.colors.primary,
+        }}
+        type="outline"
+        title={`departure ${getTimeString(accessInformation.departure?.time)}`}
+        onPress={() => setDepartureVisible(true)}
         disabled={disabled}
-        onChangeText={time => {
-          const departure = {...accessInformation.departure, ...{time}};
-          handleInputChange({departure});
-        }}>
-        {accessInformation.departure?.time}
-      </ListItem.Input>
+      />
+      {departureVisible && (
+        <RNDateTimePicker
+          mode="time"
+          value={setDate(accessInformation.departure?.time)}
+          onChange={(event: DateTimePickerEvent, date?: Date) => {
+            setDepartureVisible(false);
+            const time = getTimeStringFromPicker(event, date);
+            if (time !== null) {
+              const departure = {...accessInformation.departure, ...{time}};
+              handleInputChange({departure});
+            }
+          }}
+        />
+      )}
       <ListItem.Input
         label="arrival name"
         disabled={disabled}
@@ -69,15 +123,30 @@ const AccessInformationInnerForm: FC<
         }}>
         {accessInformation.arrival?.name}
       </ListItem.Input>
-      <ListItem.Input
-        label="arrival time"
+      <Chip
+        icon={{
+          name: 'schedule',
+          color: disabled ? theme.colors.disabled : theme.colors.primary,
+        }}
+        type="outline"
+        title={`arrival ${getTimeString(accessInformation.arrival?.time)}`}
+        onPress={() => setArrivalVisible(true)}
         disabled={disabled}
-        onChangeText={time => {
-          const arrival = {...accessInformation.arrival, ...{time}};
-          handleInputChange({arrival});
-        }}>
-        {accessInformation.arrival?.time}
-      </ListItem.Input>
+      />
+      {arrivalVisible && (
+        <RNDateTimePicker
+          mode="time"
+          value={setDate(accessInformation.arrival?.time)}
+          onChange={(event: DateTimePickerEvent, date?: Date) => {
+            setArrivalVisible(false);
+            const time = getTimeStringFromPicker(event, date);
+            if (time !== null) {
+              const arrival = {...accessInformation.arrival, ...{time}};
+              handleInputChange({arrival});
+            }
+          }}
+        />
+      )}
     </>
   );
 };
