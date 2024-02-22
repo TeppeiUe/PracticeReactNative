@@ -19,7 +19,9 @@ export type RootStackParamList = {
   /** 山リスト画面 */
   MountainList: undefined;
   /** 山情報詳細画面 */
-  MountainTabNavigator: NavigatorScreenParams<MountainTabParamList>;
+  MountainTabNavigator: NavigatorScreenParams<MountainTabParamList> & {
+    title: string;
+  };
 };
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
@@ -32,10 +34,15 @@ export const RootStackNavigator = () => {
   return (
     <NavigationContainer theme={theme === 'dark' ? DarkTheme : DefaultTheme}>
       <RootStack.Navigator initialRouteName="MountainList">
-        <RootStack.Screen name="MountainList" component={MountainList} />
+        <RootStack.Screen
+          name="MountainList"
+          component={MountainList}
+          options={{title: 'Mountain List'}}
+        />
         <RootStack.Screen
           name="MountainTabNavigator"
           component={MountainTabNavigator}
+          options={({route}) => ({title: route.params.title})}
         />
       </RootStack.Navigator>
     </NavigationContainer>

@@ -21,10 +21,15 @@ const MountainTab = createMaterialTopTabNavigator<MountainTabParamList>();
 export const MountainTabNavigator = () => {
   return (
     <MountainTab.Navigator initialRouteName="MountainDetail">
-      <MountainTab.Screen name="MountainDetail" component={MountainDetail} />
+      <MountainTab.Screen
+        name="MountainDetail"
+        component={MountainDetail}
+        options={{title: 'Mountain Information'}}
+      />
       <MountainTab.Screen
         name="PlanStackNavigator"
         component={PlanStackNavigator}
+        options={{title: 'Climbing Plan'}}
       />
     </MountainTab.Navigator>
   );

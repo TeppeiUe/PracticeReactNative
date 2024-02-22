@@ -72,6 +72,7 @@ export const MountainList = ({
               setMountainId(mountain.id!);
               navigation.navigate('MountainTabNavigator', {
                 screen: 'MountainDetail',
+                title: mountain.name!,
               });
             }}
             bottomDivider>
