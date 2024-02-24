@@ -11,6 +11,8 @@ import {
   NavigatorScreenParams,
 } from '@react-navigation/native';
 import {useColorScheme} from 'react-native';
+import {MountainRegister} from '../components/MountainRegister';
+import {HeaderButtonsProvider} from 'react-navigation-header-buttons';
 
 /**
  * ルートスタックパラメータ定義
@@ -18,6 +20,8 @@ import {useColorScheme} from 'react-native';
 export type RootStackParamList = {
   /** 山リスト画面 */
   MountainList: undefined;
+  /** 山登録 */
+  MountainRegister: undefined;
   /** 山情報詳細画面 */
   MountainTabNavigator: NavigatorScreenParams<MountainTabParamList> & {
     title: string;
@@ -33,18 +37,25 @@ export const RootStackNavigator = () => {
   const theme = useColorScheme();
   return (
     <NavigationContainer theme={theme === 'dark' ? DarkTheme : DefaultTheme}>
-      <RootStack.Navigator initialRouteName="MountainList">
-        <RootStack.Screen
-          name="MountainList"
-          component={MountainList}
-          options={{title: 'Mountain List'}}
-        />
-        <RootStack.Screen
-          name="MountainTabNavigator"
-          component={MountainTabNavigator}
-          options={({route}) => ({title: route.params.title})}
-        />
-      </RootStack.Navigator>
+      <HeaderButtonsProvider stackType="native">
+        <RootStack.Navigator initialRouteName="MountainList">
+          <RootStack.Screen
+            name="MountainList"
+            component={MountainList}
+            options={{title: 'Mountain List'}}
+          />
+          <RootStack.Screen
+            name="MountainRegister"
+            component={MountainRegister}
+            options={{title: 'Mountain Register'}}
+          />
+          <RootStack.Screen
+            name="MountainTabNavigator"
+            component={MountainTabNavigator}
+            options={({route}) => ({title: route.params.title})}
+          />
+        </RootStack.Navigator>
+      </HeaderButtonsProvider>
     </NavigationContainer>
   );
 };

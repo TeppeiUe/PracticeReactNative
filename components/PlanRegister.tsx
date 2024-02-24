@@ -1,41 +1,50 @@
-import {FC, useState} from 'react';
-import {Dialog, useTheme} from '@rneui/themed';
+import {useCallback, useState} from 'react';
 import {PlanForm} from './PlanForm';
 import {Plans, executeSql} from '../models/ClimbingPlan';
 import {useMountainIdContext} from '../hooks/MountainIdContext';
-import {ScrollView, StyleSheet} from 'react-native';
+import {ScrollView} from 'react-native';
 import {ConfirmDialog} from './ConfirmDialog';
-
-/**
- * 計画登録コンポーネントのプロパティ
- */
-type PlanRegisterProps = {
-  /** 表示状態 */
-  visible: boolean;
-  /** 表示状態管理 */
-  setVisible: (visible: boolean) => void;
-};
+import {CompositeScreenProps, useFocusEffect} from '@react-navigation/native';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {PlanStackParamList} from '../navigator/PlanStackNavigator';
+import {MaterialTopTabScreenProps} from '@react-navigation/material-top-tabs';
+import {MountainTabParamList} from '../navigator/MountainTabNavigator';
+import {RootStackParamList} from '../navigator/RootStackNavigator';
+import {HeaderRegisterButton} from './HeaderButtons';
 
 /**
  * 計画登録ダイアログコンポーネント
  */
-export const PlanRegister: FC<PlanRegisterProps> = props => {
-  const {visible, setVisible} = props;
+export const PlanRegister = ({
+  navigation,
+}: CompositeScreenProps<
+  NativeStackScreenProps<PlanStackParamList, 'PlanRegister'>,
+  CompositeScreenProps<
+    MaterialTopTabScreenProps<MountainTabParamList, 'PlanStackNavigator'>,
+    NativeStackScreenProps<RootStackParamList, 'MountainTabNavigator'>
+  >
+>) => {
   // 登録計画データ制御
   const [plan, setPlan] = useState<Plans>(new Plans());
   // 確認ダイアログ制御
   const [registerVisible, setRegisterVisible] = useState<boolean>(false);
 
   const {mountainId} = useMountainIdContext();
-  const {theme} = useTheme();
 
-  /**
-   * ダイアログを閉じる場合の処理
-   */
-  const closeDialog = () => {
-    setVisible(false);
-    setPlan(new Plans());
-  };
+  useFocusEffect(
+    useCallback(
+      () =>
+        navigation
+          .getParent()
+          ?.getParent()
+          ?.setOptions({
+            headerRight: () => (
+              <HeaderRegisterButton onPress={() => setRegisterVisible(true)} />
+            ),
+          }),
+      [navigation],
+    ),
+  );
 
   /**
    * 計画データ登録
@@ -78,12 +87,11 @@ export const PlanRegister: FC<PlanRegisterProps> = props => {
       is_car_access,
     ];
     executeSql(query, params, (_, res) => console.log(JSON.stringify(res)));
-    closeDialog();
+    navigation.goBack();
   };
 
   return (
-    <Dialog isVisible={visible} overlayStyle={styles.overlayStyle}>
-      <Dialog.Title title="plan register" />
+    <>
       <ScrollView>
         <PlanForm
           plan={plan}
@@ -91,18 +99,6 @@ export const PlanRegister: FC<PlanRegisterProps> = props => {
           disabled={false}
         />
       </ScrollView>
-      <Dialog.Actions>
-        <Dialog.Button
-          title="Save"
-          titleStyle={{color: theme.colors.primary}}
-          onPress={() => setRegisterVisible(true)}
-        />
-        <Dialog.Button
-          title="Cancel"
-          titleStyle={{color: theme.colors.warning}}
-          onPress={closeDialog}
-        />
-      </Dialog.Actions>
 
       {/* 登録確認ダイアログ */}
       <ConfirmDialog
@@ -110,14 +106,7 @@ export const PlanRegister: FC<PlanRegisterProps> = props => {
         visible={registerVisible}
         setVisible={setRegisterVisible}
         okCallback={handleSaveClick}
-        cancelCallback={closeDialog}
       />
-    </Dialog>
+    </>
   );
 };
-
-const styles = StyleSheet.create({
-  overlayStyle: {
-    maxHeight: '80%',
-  },
-});

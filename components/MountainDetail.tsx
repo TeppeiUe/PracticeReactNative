@@ -9,12 +9,15 @@ import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../navigator/RootStackNavigator';
 import {useMountainIdContext} from '../hooks/MountainIdContext';
 import {ConfirmDialog} from './ConfirmDialog';
-import {useSpeedDialSettingContext} from '../hooks/SpeedDialContext';
+import {HeaderButtons} from 'react-navigation-header-buttons';
+import {HeaderOverflowMenu, HeaderSaveButton, HeaderUpdateHiddenButton} from './HeaderButtons';
 
 /**
  * 山データ詳細表示コンポーネント
  */
-export const MountainDetail = ({}: CompositeScreenProps<
+export const MountainDetail = ({
+  navigation,
+}: CompositeScreenProps<
   MaterialTopTabScreenProps<MountainTabParamList, 'MountainDetail'>,
   NativeStackScreenProps<RootStackParamList, 'MountainTabNavigator'>
 >) => {
@@ -26,7 +29,6 @@ export const MountainDetail = ({}: CompositeScreenProps<
   const [visible, setVisible] = useState<boolean>(false);
 
   const {mountainId} = useMountainIdContext();
-  const {setActions} = useSpeedDialSettingContext();
 
   /**
    * 山データ取得
@@ -45,14 +47,22 @@ export const MountainDetail = ({}: CompositeScreenProps<
   useFocusEffect(
     useCallback(
       () =>
-        setActions([
-          {
-            icon: disabled ? 'edit' : 'save',
-            title: disabled ? 'Edit' : 'Save',
-            onPress: () => (disabled ? setDisabled(false) : setVisible(true)),
-          },
-        ]),
-      [disabled, setActions],
+        navigation.getParent()?.setOptions({
+          headerRight: () => (
+            <HeaderButtons>
+              {!disabled && (
+                <HeaderSaveButton onPress={() => setVisible(true)} />
+              )}
+              <HeaderOverflowMenu>
+                <HeaderUpdateHiddenButton
+                  onPress={() => setDisabled(false)}
+                  disabled={!disabled}
+                />
+              </HeaderOverflowMenu>
+            </HeaderButtons>
+          ),
+        }),
+      [disabled, navigation],
     ),
   );
 

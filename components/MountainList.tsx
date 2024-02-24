@@ -5,10 +5,9 @@ import {RefreshControl, ScrollView} from 'react-native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../navigator/RootStackNavigator';
 import {usePrefecturesContext} from '../hooks/PrefecturesContext';
-import {MountainRegister} from './MountainRegister';
 import {useMountainIdContext} from '../hooks/MountainIdContext';
-import {useSpeedDialSettingContext} from '../hooks/SpeedDialContext';
 import {useFocusEffect} from '@react-navigation/native';
+import {HeaderRegisterButton} from './HeaderButtons';
 
 /**
  * 山リスト表示コンポーネント
@@ -20,12 +19,9 @@ export const MountainList = ({
   const [mountainList, setMountainList] = useState<Mountains[]>([]);
   // 画面リフレッシュ制御
   const [refreshing, setRefreshing] = useState<boolean>(false);
-  // 登録ダイアログ表示制御
-  const [visible, setVisible] = useState<boolean>(false);
 
   const prefectures = usePrefecturesContext();
   const {setMountainId} = useMountainIdContext();
-  const {setActions} = useSpeedDialSettingContext();
 
   /**
    * 画面リフレッシュ
@@ -48,14 +44,14 @@ export const MountainList = ({
   useFocusEffect(
     useCallback(
       () =>
-        setActions([
-          {
-            icon: 'add',
-            title: 'Register',
-            onPress: () => setVisible(true),
-          },
-        ]),
-      [setActions],
+        navigation.setOptions({
+          headerRight: () => (
+            <HeaderRegisterButton
+              onPress={() => navigation.navigate('MountainRegister')}
+            />
+          ),
+        }),
+      [navigation],
     ),
   );
 
@@ -93,9 +89,6 @@ export const MountainList = ({
           </ListItem>
         ))}
       </ScrollView>
-
-      {/* 登録ダイアログ */}
-      <MountainRegister visible={visible} setVisible={setVisible} />
     </>
   );
 };

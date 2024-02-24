@@ -9,7 +9,13 @@ import {MountainTabParamList} from '../navigator/MountainTabNavigator';
 import {RootStackParamList} from '../navigator/RootStackNavigator';
 import {PlanForm} from './PlanForm';
 import {ConfirmDialog} from './ConfirmDialog';
-import {useSpeedDialSettingContext} from '../hooks/SpeedDialContext';
+import {HeaderButtons} from 'react-navigation-header-buttons';
+import {
+  HeaderDeleteHiddenButton,
+  HeaderOverflowMenu,
+  HeaderSaveButton,
+  HeaderUpdateHiddenButton,
+} from './HeaderButtons';
 
 /**
  * 計画データ詳細表示コンポーネント
@@ -34,8 +40,6 @@ export const PlanDetail = ({
   // 削除確認ダイアログ表示制御
   const [deleteVisible, setDeleteVisible] = useState<boolean>(false);
 
-  const {setActions} = useSpeedDialSettingContext();
-
   /**
    * 計画データ取得
    */
@@ -51,25 +55,28 @@ export const PlanDetail = ({
   useFocusEffect(
     useCallback(
       () =>
-        setActions([
-          {
-            icon: 'delete',
-            title: 'Delete',
-            onPress: () => setDeleteVisible(true),
-          },
-          {
-            icon: disabled ? 'edit' : 'save',
-            title: disabled ? 'Edit' : 'Save',
-            onPress: () =>
-              disabled ? setDisabled(false) : setRegisterVisible(true),
-          },
-          {
-            icon: 'list',
-            title: 'back',
-            onPress: () => navigation.goBack(),
-          },
-        ]),
-      [disabled, setActions, navigation],
+        navigation
+          .getParent()
+          ?.getParent()
+          ?.setOptions({
+            headerRight: () => (
+              <HeaderButtons>
+                {!disabled && (
+                  <HeaderSaveButton onPress={() => setRegisterVisible(true)} />
+                )}
+                <HeaderOverflowMenu>
+                  <HeaderDeleteHiddenButton
+                    onPress={() => setDeleteVisible(true)}
+                  />
+                  <HeaderUpdateHiddenButton
+                    onPress={() => setDisabled(false)}
+                    disabled={!disabled}
+                  />
+                </HeaderOverflowMenu>
+              </HeaderButtons>
+            ),
+          }),
+      [disabled, navigation],
     ),
   );
 

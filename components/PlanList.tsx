@@ -9,8 +9,7 @@ import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../navigator/RootStackNavigator';
 import {PlanStackParamList} from '../navigator/PlanStackNavigator';
 import {useMountainIdContext} from '../hooks/MountainIdContext';
-import {PlanRegister} from './PlanRegister';
-import {useSpeedDialSettingContext} from '../hooks/SpeedDialContext';
+import {HeaderRegisterButton} from './HeaderButtons';
 
 /**
  * 計画リスト表示コンポーネント
@@ -28,11 +27,8 @@ export const PlanList = ({
   const [planList, setPlanList] = useState<Plans[]>([]);
   // 画面リフレッシュ制御
   const [refreshing, setRefreshing] = useState<boolean>(false);
-  // 登録ダイアログ表示制御
-  const [registerVisible, setRegisterVisible] = useState<boolean>(false);
 
   const {mountainId} = useMountainIdContext();
-  const {setActions} = useSpeedDialSettingContext();
 
   /**
    * 計画データ取得
@@ -60,14 +56,17 @@ export const PlanList = ({
   useFocusEffect(
     useCallback(
       () =>
-        setActions([
-          {
-            icon: 'add',
-            title: 'Register',
-            onPress: () => setRegisterVisible(true),
-          },
-        ]),
-      [setActions],
+        navigation
+          .getParent()
+          ?.getParent()
+          ?.setOptions({
+            headerRight: () => (
+              <HeaderRegisterButton
+                onPress={() => navigation.navigate('PlanRegister')}
+              />
+            ),
+          }),
+      [navigation],
     ),
   );
 
@@ -99,9 +98,6 @@ export const PlanList = ({
           );
         })}
       </ScrollView>
-
-      {/* 登録ダイアログ */}
-      <PlanRegister visible={registerVisible} setVisible={setRegisterVisible} />
     </>
   );
 };

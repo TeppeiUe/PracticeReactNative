@@ -225,7 +225,8 @@ export const AccessInformationForm: FC<
             expandedItems.includes(i)
               ? setExpandedItems(expandedItems.filter(v => v !== i))
               : setExpandedItems([...expandedItems, i])
-          }>
+          }
+          disabled={disabled}>
           <AccessInformationInnerForm
             accessInformation={a}
             disabled={disabled}
