@@ -1,5 +1,5 @@
-import { Icon } from '@rneui/themed';
-import { ReactNode } from 'react';
+import {Icon} from '@rneui/themed';
+import {ReactNode} from 'react';
 import {
   HiddenItem,
   HiddenItemProps,
@@ -8,17 +8,30 @@ import {
   OverflowMenu,
 } from 'react-navigation-header-buttons';
 
-export const HeaderOverflowMenu = ({children}: { children: ReactNode}) =>
-  <OverflowMenu OverflowIcon={<Icon name="more-horiz" />} children={children} />;
+/**
+ * メニュー用ヘッダボタンコンポーネント
+ */
+export const HeaderOverflowMenu = ({children}: {children: ReactNode}) => (
+  <OverflowMenu OverflowIcon={<Icon name="more-horiz" />} children={children} />
+);
 
+/**
+ * 登録用ヘッダボタンコンポーネント
+ */
 export const HeaderRegisterButton = ({onPress}: Pick<ItemProps, 'onPress'>) => (
   <Item title="Register" onPress={onPress} />
 );
 
+/**
+ * 保存用ヘッダボタンコンポーネント
+ */
 export const HeaderSaveButton = ({onPress}: Pick<ItemProps, 'onPress'>) => (
   <Item title="Save" onPress={onPress} />
 );
 
+/**
+ * 更新用メニュー格納ヘッダボタンコンポーネント
+ */
 export const HeaderUpdateHiddenButton = ({
   onPress,
   disabled,
@@ -26,6 +39,9 @@ export const HeaderUpdateHiddenButton = ({
   <HiddenItem title="Update" onPress={onPress} disabled={disabled} />
 );
 
+/**
+ * 削除用メニュー格納ヘッダボタンコンポーネント
+ */
 export const HeaderDeleteHiddenButton = ({
   onPress,
 }: Pick<HiddenItemProps, 'onPress'>) => (
