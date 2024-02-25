@@ -8,7 +8,7 @@ import {checkNaturalNumber} from '../utils/validation';
 /**
  * 計画フォームコンポーネントのプロパティ
  */
-type PlanFormProps<T = Plans> = {
+type PlanFormProps<T = Omit<Plans, 'id'>> = {
   /** disabled */
   disabled?: boolean;
   /** 表示計画データ */
@@ -21,7 +21,7 @@ type PlanFormProps<T = Plans> = {
  * 計画フォームコンポーネント
  */
 export const PlanForm: FC<PlanFormProps> = props => {
-  const {disabled = true, handleValueChange} = props;
+  const {disabled = true, handleValueChange, plan} = props;
   const {theme} = useTheme();
 
   /**
@@ -29,7 +29,7 @@ export const PlanForm: FC<PlanFormProps> = props => {
    */
   const handleInputChange = (val: {[K in keyof Plans]?: Plans[K]}) => {
     if (handleValueChange !== undefined) {
-      handleValueChange({...props.plan, ...val});
+      handleValueChange({...plan, ...val});
     }
   };
 
@@ -48,7 +48,7 @@ export const PlanForm: FC<PlanFormProps> = props => {
         label="name"
         disabled={disabled}
         onChangeText={name => handleInputChange({name})}>
-        {props.plan.name}
+        {plan.name}
       </Input>
       {disabled ? (
         <Chip
@@ -58,14 +58,14 @@ export const PlanForm: FC<PlanFormProps> = props => {
           }}
           type="outline"
           title="page view"
-          onPress={() => openURL(props.plan.url)}
+          onPress={() => openURL(plan.url)}
         />
       ) : (
         <Input
           label="url"
           disabled={disabled}
           onChangeText={url => handleInputChange({url})}>
-          {props.plan.url}
+          {plan.url}
         </Input>
       )}
       <Input
@@ -75,7 +75,7 @@ export const PlanForm: FC<PlanFormProps> = props => {
           const effective_height = checkNaturalNumber(t) ? Number(t) : null;
           handleInputChange({effective_height});
         }}>
-        {props.plan.effective_height}
+        {plan.effective_height}
       </Input>
       <Input
         label="effective_distance [m]"
@@ -84,12 +84,12 @@ export const PlanForm: FC<PlanFormProps> = props => {
           const effective_distance = checkNaturalNumber(t) ? Number(t) : null;
           handleInputChange({effective_distance});
         }}>
-        {props.plan.effective_distance}
+        {plan.effective_distance}
       </Input>
       <View style={styles.container}>
         <Text style={styles.placeholderStyle}>access_information</Text>
         <AccessInformationForm
-          accessInformation={JSON.parse(props.plan.access_information)}
+          accessInformation={JSON.parse(plan.access_information)}
           disabled={disabled}
           handleValueChange={a => {
             const access_information = JSON.stringify(a);
@@ -99,9 +99,9 @@ export const PlanForm: FC<PlanFormProps> = props => {
       </View>
       <CheckBox
         title="is_car_access"
-        checked={props.plan.is_car_access === 1}
+        checked={plan.is_car_access === 1}
         onPress={() => {
-          const is_car_access = props.plan.is_car_access === 1 ? 0 : 1;
+          const is_car_access = plan.is_car_access === 1 ? 0 : 1;
           handleInputChange({is_car_access});
         }}
         disabled={disabled}

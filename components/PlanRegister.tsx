@@ -1,8 +1,8 @@
 import {useCallback, useState} from 'react';
 import {PlanForm} from './PlanForm';
-import {Plans, executeSql} from '../models/ClimbingPlan';
+import {Plans, PlansInit} from '../models/ClimbingPlan';
 import {useMountainIdContext} from '../hooks/MountainIdContext';
-import {ScrollView} from 'react-native';
+import {Alert, ScrollView} from 'react-native';
 import {ConfirmDialog} from './ConfirmDialog';
 import {CompositeScreenProps, useFocusEffect} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
@@ -11,6 +11,7 @@ import {MaterialTopTabScreenProps} from '@react-navigation/material-top-tabs';
 import {MountainTabParamList} from '../navigator/MountainTabNavigator';
 import {RootStackParamList} from '../navigator/RootStackNavigator';
 import {HeaderRegisterButton} from './HeaderButtons';
+import {registerPlan} from '../utils/ClimbingPlanConnection';
 
 /**
  * 計画登録ダイアログコンポーネント
@@ -24,13 +25,16 @@ export const PlanRegister = ({
     NativeStackScreenProps<RootStackParamList, 'MountainTabNavigator'>
   >
 >) => {
+  const {mountainId} = useMountainIdContext();
+  const plansInit = new PlansInit();
+  plansInit.mountain_id = mountainId;
+
   // 登録計画データ制御
-  const [plan, setPlan] = useState<Plans>(new Plans());
+  const [plan, setPlan] = useState<Omit<Plans, 'id'>>(plansInit);
   // 確認ダイアログ制御
   const [registerVisible, setRegisterVisible] = useState<boolean>(false);
 
-  const {mountainId} = useMountainIdContext();
-
+  // ヘッダ情報の設定
   useFocusEffect(
     useCallback(
       () =>
@@ -49,46 +53,13 @@ export const PlanRegister = ({
   /**
    * 計画データ登録
    */
-  const handleSaveClick = () => {
-    const {
-      name,
-      url,
-      effective_height,
-      effective_distance,
-      access_information,
-      is_car_access,
-    } = plan;
-    const query = `
-      INSERT INTO plans (
-        mountain_id,
-        name,
-        url,
-        effective_height,
-        effective_distance,
-        access_information,
-        is_car_access
-      ) VALUES (
-        ?, -- mountain_id
-        ?, -- name
-        ?, -- url
-        ?, -- effective_height
-        ?, -- effective_distance,
-        ?, -- access_information
-        ? -- is_car_access
-      )
-    `;
-    const params = [
-      mountainId,
-      name,
-      url,
-      effective_height,
-      effective_distance,
-      access_information,
-      is_car_access,
-    ];
-    executeSql(query, params, (_, res) => console.log(JSON.stringify(res)));
-    navigation.goBack();
-  };
+  const handleSaveClick = () =>
+    registerPlan(
+      plan,
+      () => navigation.goBack(),
+      (tx, _) =>
+        Alert.alert('Registration failed.', JSON.stringify(tx), [{text: 'OK'}]),
+    );
 
   return (
     <>

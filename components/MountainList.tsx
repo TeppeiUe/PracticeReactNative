@@ -1,13 +1,14 @@
 import {useCallback, useState} from 'react';
-import {Mountains, executeSql} from '../models/ClimbingPlan';
+import {Mountains} from '../models/ClimbingPlan';
 import {ListItem} from '@rneui/themed';
-import {RefreshControl, ScrollView} from 'react-native';
+import {Alert, RefreshControl, ScrollView} from 'react-native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../navigator/RootStackNavigator';
 import {usePrefecturesContext} from '../hooks/PrefecturesContext';
 import {useMountainIdContext} from '../hooks/MountainIdContext';
 import {useFocusEffect} from '@react-navigation/native';
 import {HeaderRegisterButton} from './HeaderButtons';
+import {getMountainList} from '../utils/ClimbingPlanConnection';
 
 /**
  * 山リスト表示コンポーネント
@@ -36,8 +37,12 @@ export const MountainList = ({
    * 山データ取得
    */
   const fetch = () =>
-    executeSql('SELECT * FROM mountains', [], (_, res) =>
-      setMountainList(res.rows.raw()),
+    getMountainList(
+      (_, res) => setMountainList(res.rows.raw()),
+      (tx, _) =>
+        Alert.alert('Failed to retrieve data.', JSON.stringify(tx), [
+          {text: 'OK'},
+        ]),
     );
 
   useFocusEffect(useCallback(fetch, []));

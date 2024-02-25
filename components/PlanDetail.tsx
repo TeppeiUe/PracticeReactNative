@@ -1,7 +1,7 @@
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {useCallback, useState} from 'react';
-import {Plans, executeSql} from '../models/ClimbingPlan';
-import {ScrollView} from 'react-native';
+import {Plans, PlansInit} from '../models/ClimbingPlan';
+import {Alert, ScrollView} from 'react-native';
 import {PlanStackParamList} from '../navigator/PlanStackNavigator';
 import {CompositeScreenProps, useFocusEffect} from '@react-navigation/native';
 import {MaterialTopTabScreenProps} from '@react-navigation/material-top-tabs';
@@ -16,6 +16,7 @@ import {
   HeaderSaveButton,
   HeaderUpdateHiddenButton,
 } from './HeaderButtons';
+import {deletePlan, getPlan, updatePlan} from '../utils/ClimbingPlanConnection';
 
 /**
  * 計画データ詳細表示コンポーネント
@@ -32,7 +33,7 @@ export const PlanDetail = ({
 >) => {
   const {plan_id} = route.params;
   // 表示計画データ制御
-  const [plan, setPlan] = useState<Plans>(new Plans());
+  const [plan, setPlan] = useState<Omit<Plans, 'id'>>(new PlansInit());
   // 編集状態制御
   const [disabled, setDisabled] = useState<boolean>(true);
   // 登録ダイアログ表示制御
@@ -45,13 +46,20 @@ export const PlanDetail = ({
    */
   const fetch = useCallback(
     () =>
-      executeSql('SELECT * FROM plans WHERE id = ?', [plan_id], (_, res) =>
-        setPlan(res.rows.item(0)),
+      getPlan(
+        plan_id,
+        (_, res) => setPlan(res.rows.item(0)),
+        (tx, _) =>
+          Alert.alert('Failed to retrieve data.', JSON.stringify(tx), [
+            {text: 'OK'},
+          ]),
       ),
     [plan_id],
   );
 
+  // 取得計画データ表示反映
   useFocusEffect(fetch);
+  // ヘッダ情報の設定
   useFocusEffect(
     useCallback(
       () =>
@@ -83,38 +91,13 @@ export const PlanDetail = ({
   /**
    * 登録確認okの場合の処理
    */
-  const registerOkCallback = () => {
-    const {
-      name,
-      url,
-      effective_height,
-      effective_distance,
-      access_information,
-      is_car_access,
-      id,
-    } = plan;
-    const query = `
-      UPDATE plans SET
-      name = ?,
-      url = ?,
-      effective_height = ?,
-      effective_distance = ?,
-      access_information = ?,
-      is_car_access = ?
-      WHERE id = ?
-    `;
-    const params = [
-      name,
-      url,
-      effective_height,
-      effective_distance,
-      access_information,
-      is_car_access,
-      id,
-    ];
-    executeSql(query, params, (_, res) => console.log(JSON.stringify(res)));
-    setDisabled(true);
-  };
+  const registerOkCallback = () =>
+    updatePlan(
+      {...plan, id: plan_id},
+      () => setDisabled(true),
+      (tx, _) =>
+        Alert.alert('Update failed.', JSON.stringify(tx), [{text: 'OK'}]),
+    );
 
   /**
    * 登録確認cancelの場合の処理
@@ -127,12 +110,13 @@ export const PlanDetail = ({
   /**
    * 削除確認okの場合の処理
    */
-  const deleteOkCallback = () => {
-    executeSql('DELETE FROM plans WHERE id = ?', [plan.id], (_, res) =>
-      console.log(JSON.stringify(res)),
+  const deleteOkCallback = () =>
+    deletePlan(
+      plan_id,
+      () => navigation.goBack(),
+      (tx, _) =>
+        Alert.alert('Deletion failed.', JSON.stringify(tx), [{text: 'OK'}]),
     );
-    navigation.goBack();
-  };
 
   return (
     <>

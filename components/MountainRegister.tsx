@@ -1,11 +1,13 @@
 import {useCallback, useState} from 'react';
 import {MountainForm} from './MountainForm';
-import {Mountains, executeSql} from '../models/ClimbingPlan';
+import {Mountains, MountainsInit} from '../models/ClimbingPlan';
 import {ConfirmDialog} from './ConfirmDialog';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {RootStackParamList} from '../navigator/RootStackNavigator';
 import {useFocusEffect} from '@react-navigation/native';
 import {HeaderRegisterButton} from './HeaderButtons';
+import {registerMountain} from '../utils/ClimbingPlanConnection';
+import {Alert} from 'react-native';
 
 /**
  * 山登録コンポーネント
@@ -14,10 +16,13 @@ export const MountainRegister = ({
   navigation,
 }: NativeStackScreenProps<RootStackParamList, 'MountainRegister'>) => {
   // 登録山データ制御
-  const [mountain, setMountain] = useState<Mountains>(new Mountains());
+  const [mountain, setMountain] = useState<Omit<Mountains, 'id'>>(
+    new MountainsInit(),
+  );
   // 確認ダイアログ制御
   const [registerVisible, setRegisterVisible] = useState<boolean>(false);
 
+  // ヘッダ情報の編集
   useFocusEffect(
     useCallback(
       () =>
@@ -33,47 +38,13 @@ export const MountainRegister = ({
   /**
    * 山データ登録
    */
-  const handleSaveClick = () => {
-    const query = `
-      INSERT INTO mountains (
-        name,
-        kana,
-        latitude,
-        longitude,
-        prefecture_id,
-        weather_view,
-        logical_delete
-      ) VALUES (
-        ?, -- name
-        ?, -- kana
-        ?, -- latitude
-        ?, -- longitude
-        ?, -- prefecture_id
-        ?, -- weather_view
-        ? -- logical_delete
-      )
-    `;
-    const {
-      name,
-      kana,
-      latitude,
-      longitude,
-      prefecture_id,
-      weather_view,
-      logical_delete,
-    } = mountain;
-    const params = [
-      name,
-      kana,
-      latitude,
-      longitude,
-      prefecture_id,
-      weather_view,
-      logical_delete,
-    ];
-    executeSql(query, params, (_, res) => console.log(JSON.stringify(res)));
-    navigation.goBack();
-  };
+  const handleSaveClick = () =>
+    registerMountain(
+      mountain,
+      () => navigation.goBack(),
+      (tx, _) =>
+        Alert.alert('Registration failed.', JSON.stringify(tx), [{text: 'OK'}]),
+    );
 
   return (
     <>

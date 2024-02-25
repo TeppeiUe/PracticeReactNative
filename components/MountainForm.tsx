@@ -9,7 +9,7 @@ import {checkPositiveNumber} from '../utils/validation';
 /**
  * 山フォームコンポーネントのプロパティ
  */
-type MountainFormProps<T = Mountains> = {
+type MountainFormProps<T = Omit<Mountains, 'id'>> = {
   /** disabled */
   disabled?: boolean;
   /** 表示山データ */
@@ -22,7 +22,7 @@ type MountainFormProps<T = Mountains> = {
  * 山フォームコンポーネント
  */
 export const MountainForm: FC<MountainFormProps> = props => {
-  const {disabled = true, handleValueChange} = props;
+  const {disabled = true, handleValueChange, mountain} = props;
   const prefectures = usePrefecturesContext();
   const {theme} = useTheme();
 
@@ -31,14 +31,17 @@ export const MountainForm: FC<MountainFormProps> = props => {
    */
   const handleInputChange = (val: {[K in keyof Mountains]?: Mountains[K]}) => {
     if (handleValueChange !== undefined) {
-      handleValueChange({...props.mountain, ...val});
+      handleValueChange({...mountain, ...val});
     }
   };
 
   /**
    * リンクを開く
    */
-  const openURL = async (latitude: number | null, longitude: number | null) => {
+  const openURL = async (
+    latitude: Mountains['latitude'],
+    longitude: Mountains['longitude'],
+  ) => {
     if (latitude !== null && longitude !== null) {
       const url = `https://maps.google.co.jp/maps?q=${latitude},${longitude}&t=p`;
       console.log(url);
@@ -52,13 +55,13 @@ export const MountainForm: FC<MountainFormProps> = props => {
         label="name"
         disabled={disabled}
         onChangeText={name => handleInputChange({name})}>
-        {props.mountain.name}
+        {mountain.name}
       </Input>
       <Input
         label="kana"
         disabled={disabled}
         onChangeText={kana => handleInputChange({kana})}>
-        {props.mountain.kana}
+        {mountain.kana}
       </Input>
       {!disabled && (
         <Input
@@ -68,7 +71,7 @@ export const MountainForm: FC<MountainFormProps> = props => {
             const latitude = checkPositiveNumber(t) ? Number(t) : null;
             handleInputChange({latitude});
           }}>
-          {props.mountain.latitude}
+          {mountain.latitude}
         </Input>
       )}
       {!disabled && (
@@ -79,30 +82,27 @@ export const MountainForm: FC<MountainFormProps> = props => {
             const longitude = checkPositiveNumber(t) ? Number(t) : null;
             handleInputChange({longitude});
           }}>
-          {props.mountain.longitude}
+          {mountain.longitude}
         </Input>
       )}
-      {props.mountain.latitude !== null &&
-        props.mountain.longitude !== null && (
-          <Chip
-            icon={{
-              name: 'pageview',
-              color: theme.colors.primary,
-            }}
-            type="outline"
-            title="Google Map"
-            onPress={() =>
-              openURL(props.mountain.latitude, props.mountain.longitude)
-            }
-          />
-        )}
+      {mountain.latitude !== null && mountain.longitude !== null && (
+        <Chip
+          icon={{
+            name: 'pageview',
+            color: theme.colors.primary,
+          }}
+          type="outline"
+          title="Google Map"
+          onPress={() => openURL(mountain.latitude, mountain.longitude)}
+        />
+      )}
       <View style={styles.container}>
         <MultiSelect
           placeholder="prefecture"
           data={prefectures.map(p => ({...p, id: String(p.id)}))}
           labelField="name"
           valueField="id"
-          value={JSON.parse(props.mountain.prefecture_id).map(String)}
+          value={JSON.parse(mountain.prefecture_id).map(String)}
           onChange={i => {
             const prefecture_id = JSON.stringify(i.map(Number));
             handleInputChange({prefecture_id});
@@ -118,18 +118,18 @@ export const MountainForm: FC<MountainFormProps> = props => {
       </View>
       <CheckBox
         title="weather view"
-        checked={props.mountain.weather_view === 1}
+        checked={mountain.weather_view === 1}
         onPress={() => {
-          const weather_view = props.mountain.weather_view === 1 ? 0 : 1;
+          const weather_view = mountain.weather_view === 1 ? 0 : 1;
           handleInputChange({weather_view});
         }}
         disabled={disabled}
       />
       <CheckBox
         title="logical delete"
-        checked={props.mountain.logical_delete === 1}
+        checked={mountain.logical_delete === 1}
         onPress={() => {
-          const logical_delete = props.mountain.logical_delete === 1 ? 0 : 1;
+          const logical_delete = mountain.logical_delete === 1 ? 0 : 1;
           handleInputChange({logical_delete});
         }}
         disabled={disabled}

@@ -1,8 +1,8 @@
 import {MaterialTopTabScreenProps} from '@react-navigation/material-top-tabs';
 import {MountainTabParamList} from '../navigator/MountainTabNavigator';
 import {useCallback, useState} from 'react';
-import {Mountains, executeSql} from '../models/ClimbingPlan';
-import {ScrollView} from 'react-native';
+import {Mountains, MountainsInit} from '../models/ClimbingPlan';
+import {Alert, ScrollView} from 'react-native';
 import {MountainForm} from './MountainForm';
 import {CompositeScreenProps, useFocusEffect} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
@@ -10,7 +10,12 @@ import {RootStackParamList} from '../navigator/RootStackNavigator';
 import {useMountainIdContext} from '../hooks/MountainIdContext';
 import {ConfirmDialog} from './ConfirmDialog';
 import {HeaderButtons} from 'react-navigation-header-buttons';
-import {HeaderOverflowMenu, HeaderSaveButton, HeaderUpdateHiddenButton} from './HeaderButtons';
+import {
+  HeaderOverflowMenu,
+  HeaderSaveButton,
+  HeaderUpdateHiddenButton,
+} from './HeaderButtons';
+import {getMountain, updateMountain} from '../utils/ClimbingPlanConnection';
 
 /**
  * 山データ詳細表示コンポーネント
@@ -22,7 +27,9 @@ export const MountainDetail = ({
   NativeStackScreenProps<RootStackParamList, 'MountainTabNavigator'>
 >) => {
   // 表示山データ制御
-  const [mountain, setMountain] = useState<Mountains>(new Mountains());
+  const [mountain, setMountain] = useState<Omit<Mountains, 'id'>>(
+    new MountainsInit(),
+  );
   // 編集状態制御
   const [disabled, setDisabled] = useState<boolean>(true);
   // 登録確認ダイアログ表示制御
@@ -35,10 +42,17 @@ export const MountainDetail = ({
    */
   const fetch = useCallback(
     () =>
-      executeSql(
-        'SELECT * FROM mountains WHERE id = ?',
-        [mountainId],
-        (_, res) => setMountain(res.rows.item(0)),
+      getMountain(
+        mountainId,
+        (_, res) => {
+          const mountain = res.rows.item(0) as Mountains;
+          mountain.id = mountainId;
+          setMountain(mountain);
+        },
+        (tx, _) =>
+          Alert.alert('Failed to retrieve data.', JSON.stringify(tx), [
+            {text: 'OK'},
+          ]),
       ),
     [mountainId],
   );
@@ -69,40 +83,13 @@ export const MountainDetail = ({
   /**
    * 登録確認okの場合の処理
    */
-  const okCallback = () => {
-    const {
-      name,
-      kana,
-      latitude,
-      longitude,
-      prefecture_id,
-      weather_view,
-      logical_delete,
-    } = mountain;
-    const query = `
-      UPDATE mountains SET
-      name = ?,
-      kana = ?,
-      latitude = ?,
-      longitude = ?,
-      prefecture_id = ?,
-      weather_view = ?,
-      logical_delete = ?
-      WHERE id = ?
-    `;
-    const params = [
-      name,
-      kana,
-      latitude,
-      longitude,
-      prefecture_id,
-      weather_view,
-      logical_delete,
-      mountainId,
-    ];
-    executeSql(query, params, (_, res) => console.log(JSON.stringify(res)));
-    setDisabled(true);
-  };
+  const okCallback = () =>
+    updateMountain(
+      {...mountain, id: mountainId},
+      () => setDisabled(true),
+      (tx, _) =>
+        Alert.alert('Update failed.', JSON.stringify(tx), [{text: 'OK'}]),
+    );
 
   /**
    * 登録確認cancelの場合の処理

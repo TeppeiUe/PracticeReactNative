@@ -1,40 +1,3 @@
-import {
-  ResultSet,
-  Transaction,
-  openDatabase,
-} from 'react-native-sqlite-storage';
-
-/**
- * DB接続
- */
-const db = openDatabase(
-  {
-    name: 'climbingPlan.sqlite3',
-    createFromLocation: 1,
-  },
-  () => {},
-  e => console.error(e),
-);
-
-/**
- * SQL実行
- * @param query 実行クエリ
- * @param params パラメータ
- * @param callback クエリ実行成功時のコールバック
- */
-export const executeSql = (
-  query: string,
-  params: any[],
-  callback: (tx: Transaction, res: ResultSet) => void,
-) => {
-  db.transaction(tx => {
-    tx.executeSql(query, params, callback, (tx, e) => {
-      console.error(JSON.stringify(tx));
-      console.error(JSON.stringify(e));
-    });
-  });
-};
-
 /** 都道府県テーブル */
 export type Prefectures = {
   /** ID */
@@ -44,45 +7,69 @@ export type Prefectures = {
 };
 
 /** 山テーブル */
-export class Mountains {
+export type Mountains = {
   /** ID */
-  id: number | null = null;
+  id: number;
   /** 山名 */
-  name: string | null = null;
+  name: string;
   /** 山名かな */
-  kana: string | null = null;
+  kana: string | null;
   /** 都道府県ID */
-  prefecture_id: string = '[]';
+  prefecture_id: string;
   /** 経度 */
-  latitude: number | null = null;
+  latitude: number | null;
   /** 緯度 */
-  longitude: number | null = null;
+  longitude: number | null;
   /** 備考 */
-  remarks: string | null = null;
+  remarks: string | null;
   /** 天気表示フラグ */
-  weather_view: 0 | 1 = 0;
+  weather_view: 0 | 1;
   /** 論理削除フラグ */
-  logical_delete: 0 | 1 = 0;
-}
+  logical_delete: 0 | 1;
+};
 
 /** 計画テーブル */
-export class Plans {
+export type Plans = {
   /** ID */
-  id: number | null = null;
+  id: number;
   /** 山ID */
-  mountain_id: number | null = null;
+  mountain_id: number;
   /** 計画名 */
-  name: string | null = null;
+  name: string;
   /** URL */
-  url: string | null = null;
+  url: string | null;
   /** 累積標高 */
-  effective_height: number | null = null;
+  effective_height: number | null;
   /** 累積距離 */
-  effective_distance: number | null = null;
+  effective_distance: number | null;
   /** アクセス情報 */
-  access_information: string = '[]';
+  access_information: string;
   /** 備考 */
-  remarks: string | null = null;
+  remarks: string | null;
   /** 車でアクセスフラグ */
-  is_car_access: 0 | 1 = 0;
+  is_car_access: 0 | 1;
+};
+
+/** 初期山情報 */
+export class MountainsInit implements Omit<Mountains, 'id'> {
+  name = '';
+  kana = null;
+  prefecture_id = '[]';
+  latitude = null;
+  longitude = null;
+  logical_delete: Mountains['logical_delete'] = 0;
+  weather_view: Mountains['weather_view'] = 0;
+  remarks = null;
+}
+
+/** 初期計画情報 */
+export class PlansInit implements Omit<Plans, 'id'> {
+  mountain_id = 0;
+  name = '';
+  url = null;
+  effective_height = null;
+  effective_distance = null;
+  access_information = '[]';
+  remarks = null;
+  is_car_access: Plans['is_car_access'] = 0;
 }
