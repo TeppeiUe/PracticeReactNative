@@ -1,4 +1,4 @@
-import {FC} from 'react';
+import {FC, useRef} from 'react';
 import {Plans} from '../models/ClimbingPlan';
 import {Input, CheckBox, Text, Chip, useTheme} from '@rneui/themed';
 import {Linking, StyleSheet, View} from 'react-native';
@@ -15,28 +15,66 @@ type PlanFormProps<T = Omit<Plans, 'id'>> = {
   plan: T;
   /** 計画データのコールバック */
   handleValueChange?: (plan: T) => void;
+  /** 検証結果のコールバック */
+  hasError?: (error: boolean) => void;
 };
 
 /**
  * 計画フォームコンポーネント
  */
 export const PlanForm: FC<PlanFormProps> = props => {
-  const {disabled = true, handleValueChange, plan} = props;
+  const {disabled = true, handleValueChange, plan, hasError} = props;
   const {theme} = useTheme();
+  /** バリデーション結果格納 */
+  const validation = useRef<{
+    [K in keyof Pick<
+      Plans,
+      'name' | 'url' | 'effective_height' | 'effective_distance'
+    >]: string;
+  }>({name: '', url: '', effective_height: '', effective_distance: ''});
 
   /**
-   * 計画データのコールバック
+   * 入力情報更新時のコールバック
    */
   const handleInputChange = (val: {[K in keyof Plans]?: Plans[K]}) => {
+    const updatePlan = {...plan, ...val};
+    validationCheck(updatePlan);
     if (handleValueChange !== undefined) {
-      handleValueChange({...plan, ...val});
+      handleValueChange(updatePlan);
     }
+    if (hasError !== undefined) {
+      hasError(Object.values(validation.current).some(v => v !== ''));
+    }
+  };
+
+  /**
+   * バリデーションチェック
+   */
+  const validationCheck = (updatePlan: Omit<Plans, 'id'>) => {
+    const {name, url, effective_height, effective_distance} = updatePlan;
+    validation.current = {
+      name: name ? '' : 'required fields',
+      url:
+        !url || new RegExp(/^https:\/\/[^\s/$.?#].[^\s]*$/i).test(url)
+          ? ''
+          : 'invalid value',
+      effective_height:
+        effective_height === null ||
+        checkNaturalNumber(String(effective_height))
+          ? ''
+          : 'invalid value',
+      effective_distance:
+        effective_distance === null ||
+        checkNaturalNumber(String(effective_distance))
+          ? ''
+          : 'invalid value',
+    };
   };
 
   /**
    * リンクを開く
    */
-  const openURL = async (url: string | null) => {
+  const openURL = async (url: Plans['url']) => {
     if (url !== null) {
       await Linking.openURL(url).catch(e => console.error(JSON.stringify(e)));
     }
@@ -44,12 +82,16 @@ export const PlanForm: FC<PlanFormProps> = props => {
 
   return (
     <>
+      {/* 計画名 */}
       <Input
-        label="name"
+        label="name*"
         disabled={disabled}
-        onChangeText={name => handleInputChange({name})}>
+        onChangeText={name => handleInputChange({name})}
+        errorMessage={validation.current.name}>
         {plan.name}
       </Input>
+
+      {/* URL */}
       {disabled ? (
         <Chip
           icon={{
@@ -64,28 +106,35 @@ export const PlanForm: FC<PlanFormProps> = props => {
         <Input
           label="url"
           disabled={disabled}
-          onChangeText={url => handleInputChange({url})}>
+          onChangeText={url => handleInputChange({url})}
+          errorMessage={validation.current.url}>
           {plan.url}
         </Input>
       )}
+
+      {/* 有効累積標高 */}
       <Input
         label="effective_height [m]"
         disabled={disabled}
-        onChangeText={t => {
-          const effective_height = checkNaturalNumber(t) ? Number(t) : null;
-          handleInputChange({effective_height});
-        }}>
+        onChangeText={t =>
+          handleInputChange({effective_height: t === '' ? null : Number(t)})
+        }
+        errorMessage={validation.current.effective_height}>
         {plan.effective_height}
       </Input>
+
+      {/* 有効累積距離 */}
       <Input
         label="effective_distance [m]"
         disabled={disabled}
-        onChangeText={t => {
-          const effective_distance = checkNaturalNumber(t) ? Number(t) : null;
-          handleInputChange({effective_distance});
-        }}>
+        onChangeText={t =>
+          handleInputChange({effective_distance: t === '' ? null : Number(t)})
+        }
+        errorMessage={validation.current.effective_distance}>
         {plan.effective_distance}
       </Input>
+
+      {/* アクセス情報 */}
       <View style={styles.container}>
         <Text style={styles.placeholderStyle}>access_information</Text>
         <AccessInformationForm
@@ -97,6 +146,8 @@ export const PlanForm: FC<PlanFormProps> = props => {
           }}
         />
       </View>
+
+      {/* 車でアクセスチェックボックス */}
       <CheckBox
         title="is_car_access"
         checked={plan.is_car_access === 1}

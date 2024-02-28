@@ -1,4 +1,4 @@
-import {FC} from 'react';
+import {FC, useRef} from 'react';
 import {Mountains} from '../models/ClimbingPlan';
 import {usePrefecturesContext} from '../hooks/PrefecturesContext';
 import {Input, CheckBox, useTheme, Chip} from '@rneui/themed';
@@ -16,23 +16,61 @@ type MountainFormProps<T = Omit<Mountains, 'id'>> = {
   mountain: T;
   /** 山データのコールバック */
   handleValueChange?: (mountain: T) => void;
+  /** 検証結果のコールバック */
+  hasError?: (error: boolean) => void;
 };
 
 /**
  * 山フォームコンポーネント
  */
 export const MountainForm: FC<MountainFormProps> = props => {
-  const {disabled = true, handleValueChange, mountain} = props;
+  const {disabled = true, handleValueChange, mountain, hasError} = props;
   const prefectures = usePrefecturesContext();
   const {theme} = useTheme();
+  /** バリデーション結果格納 */
+  const validation = useRef<{
+    [K in keyof Pick<
+      Mountains,
+      'name' | 'kana' | 'latitude' | 'longitude'
+    >]: string;
+  }>({name: '', kana: '', latitude: '', longitude: ''});
 
   /**
-   * 山データのコールバック
+   * 入力情報更新時のコールバック
    */
-  const handleInputChange = (val: {[K in keyof Mountains]?: Mountains[K]}) => {
+  const handleInputChange = (val: {
+    [K in keyof Omit<Mountains, 'id'>]?: Mountains[K];
+  }) => {
+    const updateMountain = {...mountain, ...val};
+    validationCheck(updateMountain);
     if (handleValueChange !== undefined) {
-      handleValueChange({...mountain, ...val});
+      handleValueChange(updateMountain);
     }
+    if (hasError !== undefined) {
+      hasError(Object.values(validation.current).some(v => v !== ''));
+    }
+  };
+
+  /**
+   * バリデーションチェック
+   */
+  const validationCheck = (mountain: Omit<Mountains, 'id'>) => {
+    const {name, kana, latitude, longitude} = mountain;
+    validation.current = {
+      name: name ? '' : 'required fields',
+      kana:
+        !kana || new RegExp(/^[ぁ-ん]+$/u).test(kana)
+          ? ''
+          : 'invalid value',
+      latitude:
+        latitude === null || checkPositiveNumber(String(latitude))
+          ? ''
+          : 'invalid value',
+      longitude:
+        longitude === null || checkPositiveNumber(String(longitude))
+          ? ''
+          : 'invalid value',
+    };
   };
 
   /**
@@ -44,47 +82,57 @@ export const MountainForm: FC<MountainFormProps> = props => {
   ) => {
     if (latitude !== null && longitude !== null) {
       const url = `https://maps.google.co.jp/maps?q=${latitude},${longitude}&t=p`;
-      console.log(url);
       await Linking.openURL(url).catch(e => console.error(JSON.stringify(e)));
     }
   };
 
   return (
     <>
+      {/* 山名 */}
       <Input
-        label="name"
+        label="name*"
         disabled={disabled}
-        onChangeText={name => handleInputChange({name})}>
+        onChangeText={name => handleInputChange({name})}
+        errorMessage={validation.current.name}>
         {mountain.name}
       </Input>
+
+      {/* 山名かな */}
       <Input
         label="kana"
         disabled={disabled}
-        onChangeText={kana => handleInputChange({kana})}>
+        onChangeText={t => handleInputChange({kana: t === '' ? null : t})}
+        errorMessage={validation.current.kana}>
         {mountain.kana}
       </Input>
+
+      {/* 経度 */}
       {!disabled && (
         <Input
           label="latitude"
           disabled={disabled}
-          onChangeText={t => {
-            const latitude = checkPositiveNumber(t) ? Number(t) : null;
-            handleInputChange({latitude});
-          }}>
+          onChangeText={t =>
+            handleInputChange({latitude: t === '' ? null : Number(t)})
+          }
+          errorMessage={validation.current.latitude}>
           {mountain.latitude}
         </Input>
       )}
+
+      {/* 緯度 */}
       {!disabled && (
         <Input
           label="longitude"
           disabled={disabled}
-          onChangeText={t => {
-            const longitude = checkPositiveNumber(t) ? Number(t) : null;
-            handleInputChange({longitude});
-          }}>
+          onChangeText={t =>
+            handleInputChange({longitude: t === '' ? null : Number(t)})
+          }
+          errorMessage={validation.current.longitude}>
           {mountain.longitude}
         </Input>
       )}
+
+      {/* URIリンク */}
       {mountain.latitude !== null && mountain.longitude !== null && (
         <Chip
           icon={{
@@ -96,6 +144,8 @@ export const MountainForm: FC<MountainFormProps> = props => {
           onPress={() => openURL(mountain.latitude, mountain.longitude)}
         />
       )}
+
+      {/* 都道府県セレクタ */}
       <View style={styles.container}>
         <MultiSelect
           placeholder="prefecture"
@@ -116,6 +166,8 @@ export const MountainForm: FC<MountainFormProps> = props => {
           selectedStyle={styles.selectedStyle}
         />
       </View>
+
+      {/* 天気表示チェックボックス */}
       <CheckBox
         title="weather view"
         checked={mountain.weather_view === 1}
@@ -125,6 +177,8 @@ export const MountainForm: FC<MountainFormProps> = props => {
         }}
         disabled={disabled}
       />
+
+      {/* 論理削除チェックボックス */}
       <CheckBox
         title="logical delete"
         checked={mountain.logical_delete === 1}

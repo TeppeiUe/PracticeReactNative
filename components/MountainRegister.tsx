@@ -19,6 +19,8 @@ export const MountainRegister = ({
   const [mountain, setMountain] = useState<Omit<Mountains, 'id'>>(
     new MountainsInit(),
   );
+  // 登録ボタン制御
+  const [saveDisabled, setSaveDisabled] = useState<boolean>(true);
   // 確認ダイアログ制御
   const [registerVisible, setRegisterVisible] = useState<boolean>(false);
 
@@ -28,10 +30,13 @@ export const MountainRegister = ({
       () =>
         navigation.setOptions({
           headerRight: () => (
-            <HeaderRegisterButton onPress={() => setRegisterVisible(true)} />
+            <HeaderRegisterButton
+              onPress={() => setRegisterVisible(true)}
+              disabled={saveDisabled}
+            />
           ),
         }),
-      [navigation],
+      [saveDisabled, navigation],
     ),
   );
 
@@ -50,8 +55,9 @@ export const MountainRegister = ({
     <>
       <MountainForm
         mountain={mountain}
-        handleValueChange={m => setMountain(m)}
+        handleValueChange={setMountain}
         disabled={false}
+        hasError={setSaveDisabled}
       />
 
       {/* 登録確認ダイアログ */}

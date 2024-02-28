@@ -31,6 +31,8 @@ export const PlanRegister = ({
 
   // 登録計画データ制御
   const [plan, setPlan] = useState<Omit<Plans, 'id'>>(plansInit);
+  // 登録ボタン制御
+  const [saveDisabled, setSaveDisabled] = useState<boolean>(true);
   // 確認ダイアログ制御
   const [registerVisible, setRegisterVisible] = useState<boolean>(false);
 
@@ -43,10 +45,13 @@ export const PlanRegister = ({
           ?.getParent()
           ?.setOptions({
             headerRight: () => (
-              <HeaderRegisterButton onPress={() => setRegisterVisible(true)} />
+              <HeaderRegisterButton
+                onPress={() => setRegisterVisible(true)}
+                disabled={saveDisabled}
+              />
             ),
           }),
-      [navigation],
+      [saveDisabled, navigation],
     ),
   );
 
@@ -66,8 +71,9 @@ export const PlanRegister = ({
       <ScrollView>
         <PlanForm
           plan={plan}
-          handleValueChange={m => setPlan(m)}
+          handleValueChange={setPlan}
           disabled={false}
+          hasError={setSaveDisabled}
         />
       </ScrollView>
 

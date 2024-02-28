@@ -18,15 +18,21 @@ export const HeaderOverflowMenu = ({children}: {children: ReactNode}) => (
 /**
  * 登録用ヘッダボタンコンポーネント
  */
-export const HeaderRegisterButton = ({onPress}: Pick<ItemProps, 'onPress'>) => (
-  <Item title="Register" onPress={onPress} />
+export const HeaderRegisterButton = ({
+  onPress,
+  disabled,
+}: Pick<ItemProps, 'onPress' | 'disabled'>) => (
+  <Item title="Register" onPress={onPress} disabled={disabled} />
 );
 
 /**
  * 保存用ヘッダボタンコンポーネント
  */
-export const HeaderSaveButton = ({onPress}: Pick<ItemProps, 'onPress'>) => (
-  <Item title="Save" onPress={onPress} />
+export const HeaderSaveButton = ({
+  onPress,
+  disabled,
+}: Pick<ItemProps, 'onPress' | 'disabled'>) => (
+  <Item title="Save" onPress={onPress} disabled={disabled} />
 );
 
 /**

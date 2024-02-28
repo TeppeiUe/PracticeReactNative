@@ -35,7 +35,9 @@ export const PlanDetail = ({
   // 表示計画データ制御
   const [plan, setPlan] = useState<Omit<Plans, 'id'>>(new PlansInit());
   // 編集状態制御
-  const [disabled, setDisabled] = useState<boolean>(true);
+  const [editDisabled, setEditDisabled] = useState<boolean>(true);
+  // 登録ボタン制御
+  const [saveDisabled, setSaveDisabled] = useState<boolean>(true);
   // 登録ダイアログ表示制御
   const [registerVisible, setRegisterVisible] = useState<boolean>(false);
   // 削除確認ダイアログ表示制御
@@ -69,22 +71,25 @@ export const PlanDetail = ({
           ?.setOptions({
             headerRight: () => (
               <HeaderButtons>
-                {!disabled && (
-                  <HeaderSaveButton onPress={() => setRegisterVisible(true)} />
+                {!editDisabled && (
+                  <HeaderSaveButton
+                    onPress={() => setRegisterVisible(true)}
+                    disabled={saveDisabled}
+                  />
                 )}
                 <HeaderOverflowMenu>
                   <HeaderDeleteHiddenButton
                     onPress={() => setDeleteVisible(true)}
                   />
                   <HeaderUpdateHiddenButton
-                    onPress={() => setDisabled(false)}
-                    disabled={!disabled}
+                    onPress={() => setEditDisabled(false)}
+                    disabled={!editDisabled}
                   />
                 </HeaderOverflowMenu>
               </HeaderButtons>
             ),
           }),
-      [disabled, navigation],
+      [editDisabled, saveDisabled, navigation],
     ),
   );
 
@@ -94,7 +99,7 @@ export const PlanDetail = ({
   const registerOkCallback = () =>
     updatePlan(
       {...plan, id: plan_id},
-      () => setDisabled(true),
+      () => setEditDisabled(true),
       (tx, _) =>
         Alert.alert('Update failed.', JSON.stringify(tx), [{text: 'OK'}]),
     );
@@ -104,7 +109,7 @@ export const PlanDetail = ({
    */
   const registerCancelCallback = () => {
     fetch();
-    setDisabled(true);
+    setEditDisabled(true);
   };
 
   /**
@@ -121,7 +126,12 @@ export const PlanDetail = ({
   return (
     <>
       <ScrollView>
-        <PlanForm plan={plan} handleValueChange={setPlan} disabled={disabled} />
+        <PlanForm
+          plan={plan}
+          handleValueChange={setPlan}
+          disabled={editDisabled}
+          hasError={setSaveDisabled}
+        />
       </ScrollView>
 
       {/* 登録ダイアログ */}

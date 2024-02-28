@@ -31,7 +31,9 @@ export const MountainDetail = ({
     new MountainsInit(),
   );
   // 編集状態制御
-  const [disabled, setDisabled] = useState<boolean>(true);
+  const [editDisabled, setEditDisabled] = useState<boolean>(true);
+  // 登録ボタン制御
+  const [saveDisabled, setSaveDisabled] = useState<boolean>(true);
   // 登録確認ダイアログ表示制御
   const [visible, setVisible] = useState<boolean>(false);
 
@@ -45,9 +47,9 @@ export const MountainDetail = ({
       getMountain(
         mountainId,
         (_, res) => {
-          const mountain = res.rows.item(0) as Mountains;
-          mountain.id = mountainId;
-          setMountain(mountain);
+          const m = res.rows.item(0) as Mountains;
+          m.id = mountainId;
+          setMountain(m);
         },
         (tx, _) =>
           Alert.alert('Failed to retrieve data.', JSON.stringify(tx), [
@@ -64,19 +66,22 @@ export const MountainDetail = ({
         navigation.getParent()?.setOptions({
           headerRight: () => (
             <HeaderButtons>
-              {!disabled && (
-                <HeaderSaveButton onPress={() => setVisible(true)} />
+              {!editDisabled && (
+                <HeaderSaveButton
+                  onPress={() => setVisible(true)}
+                  disabled={saveDisabled}
+                />
               )}
               <HeaderOverflowMenu>
                 <HeaderUpdateHiddenButton
-                  onPress={() => setDisabled(false)}
-                  disabled={!disabled}
+                  onPress={() => setEditDisabled(false)}
+                  disabled={!editDisabled}
                 />
               </HeaderOverflowMenu>
             </HeaderButtons>
           ),
         }),
-      [disabled, navigation],
+      [editDisabled, saveDisabled, navigation],
     ),
   );
 
@@ -86,7 +91,7 @@ export const MountainDetail = ({
   const okCallback = () =>
     updateMountain(
       {...mountain, id: mountainId},
-      () => setDisabled(true),
+      () => setEditDisabled(true),
       (tx, _) =>
         Alert.alert('Update failed.', JSON.stringify(tx), [{text: 'OK'}]),
     );
@@ -96,7 +101,7 @@ export const MountainDetail = ({
    */
   const cancelCallback = () => {
     fetch();
-    setDisabled(true);
+    setEditDisabled(true);
   };
 
   return (
@@ -105,7 +110,8 @@ export const MountainDetail = ({
         <MountainForm
           mountain={mountain}
           handleValueChange={m => setMountain(m)}
-          disabled={disabled}
+          disabled={editDisabled}
+          hasError={setSaveDisabled}
         />
       </ScrollView>
 
