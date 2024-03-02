@@ -17,6 +17,7 @@ import {
   HeaderUpdateHiddenButton,
 } from './HeaderButtons';
 import {deletePlan, getPlan, updatePlan} from '../utils/ClimbingPlanConnection';
+import Const from '../utils/Const';
 
 /**
  * 計画データ詳細表示コンポーネント
@@ -52,9 +53,7 @@ export const PlanDetail = ({
         plan_id,
         (_, res) => setPlan(res.rows.item(0)),
         (tx, _) =>
-          Alert.alert('Failed to retrieve data.', JSON.stringify(tx), [
-            {text: 'OK'},
-          ]),
+          Alert.alert(Const.FAILED_MESSAGE_ACQUISITION, JSON.stringify(tx)),
       ),
     [plan_id],
   );
@@ -100,8 +99,7 @@ export const PlanDetail = ({
     updatePlan(
       {...plan, id: plan_id},
       () => setEditDisabled(true),
-      (tx, _) =>
-        Alert.alert('Update failed.', JSON.stringify(tx), [{text: 'OK'}]),
+      (tx, _) => Alert.alert(Const.FAILED_MESSAGE_UPDATE, JSON.stringify(tx)),
     );
 
   /**
@@ -119,8 +117,7 @@ export const PlanDetail = ({
     deletePlan(
       plan_id,
       () => navigation.goBack(),
-      (tx, _) =>
-        Alert.alert('Deletion failed.', JSON.stringify(tx), [{text: 'OK'}]),
+      (tx, _) => Alert.alert(Const.FAILED_MESSAGE_DELETE, JSON.stringify(tx)),
     );
 
   return (
@@ -136,7 +133,7 @@ export const PlanDetail = ({
 
       {/* 登録ダイアログ */}
       <ConfirmDialog
-        title="Would you like to save?"
+        title={Const.CONFIRM_MESSAGE_UPDATE}
         visible={registerVisible}
         setVisible={setRegisterVisible}
         okCallback={registerOkCallback}
@@ -145,7 +142,7 @@ export const PlanDetail = ({
 
       {/* 削除確認ダイアログ */}
       <ConfirmDialog
-        title="Would you like to delete?"
+        title={Const.CONFIRM_MESSAGE_DELETE}
         visible={deleteVisible}
         setVisible={setDeleteVisible}
         okCallback={deleteOkCallback}

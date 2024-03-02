@@ -4,6 +4,7 @@ import {Input, CheckBox, Text, Chip, useTheme} from '@rneui/themed';
 import {Linking, StyleSheet, View} from 'react-native';
 import {AccessInformationForm} from './AccessInformationForm';
 import {checkNaturalNumber} from '../utils/validation';
+import Const from '../utils/Const';
 
 /**
  * 計画フォームコンポーネントのプロパティ
@@ -53,21 +54,21 @@ export const PlanForm: FC<PlanFormProps> = props => {
   const validationCheck = (updatePlan: Omit<Plans, 'id'>) => {
     const {name, url, effective_height, effective_distance} = updatePlan;
     validation.current = {
-      name: name ? '' : 'required fields',
+      name: name ? '' : Const.VALIDATION_MESSAGE_REQUIRED,
       url:
         !url || new RegExp(/^https:\/\/[^\s/$.?#].[^\s]*$/i).test(url)
           ? ''
-          : 'invalid value',
+          : Const.VALIDATION_MESSAGE_INVALID,
       effective_height:
         effective_height === null ||
         checkNaturalNumber(String(effective_height))
           ? ''
-          : 'invalid value',
+          : Const.VALIDATION_MESSAGE_INVALID,
       effective_distance:
         effective_distance === null ||
         checkNaturalNumber(String(effective_distance))
           ? ''
-          : 'invalid value',
+          : Const.VALIDATION_MESSAGE_INVALID,
     };
   };
 

@@ -6,6 +6,7 @@ import RNDateTimePicker, {
   DateTimePickerEvent,
 } from '@react-native-community/datetimepicker';
 import {ConfirmDialog} from './ConfirmDialog';
+import Const from '../utils/Const';
 
 /**
  * アクセス情報フォームコンポーネントのプロパティ
@@ -251,7 +252,7 @@ export const AccessInformationForm: FC<
 
       {/* 削除確認ダイアログ */}
       <ConfirmDialog
-        title="Would you like to delete?"
+        title={Const.CONFIRM_MESSAGE_DELETE}
         visible={visible}
         setVisible={setVisible}
         okCallback={handleInputDelete}

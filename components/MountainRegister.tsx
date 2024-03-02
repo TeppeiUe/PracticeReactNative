@@ -8,6 +8,7 @@ import {useFocusEffect} from '@react-navigation/native';
 import {HeaderRegisterButton} from './HeaderButtons';
 import {registerMountain} from '../utils/ClimbingPlanConnection';
 import {Alert} from 'react-native';
+import Const from '../utils/Const';
 
 /**
  * 山登録コンポーネント
@@ -47,8 +48,7 @@ export const MountainRegister = ({
     registerMountain(
       mountain,
       () => navigation.goBack(),
-      (tx, _) =>
-        Alert.alert('Registration failed.', JSON.stringify(tx), [{text: 'OK'}]),
+      (tx, _) => Alert.alert(Const.FAILED_MESSAGE_REGISTER, JSON.stringify(tx)),
     );
 
   return (
@@ -62,7 +62,7 @@ export const MountainRegister = ({
 
       {/* 登録確認ダイアログ */}
       <ConfirmDialog
-        title="Would you like to register?"
+        title={Const.CONFIRM_MESSAGE_REGISTER}
         visible={registerVisible}
         setVisible={setRegisterVisible}
         okCallback={handleSaveClick}

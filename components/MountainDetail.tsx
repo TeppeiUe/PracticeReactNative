@@ -16,6 +16,7 @@ import {
   HeaderUpdateHiddenButton,
 } from './HeaderButtons';
 import {getMountain, updateMountain} from '../utils/ClimbingPlanConnection';
+import Const from '../utils/Const';
 
 /**
  * 山データ詳細表示コンポーネント
@@ -52,9 +53,7 @@ export const MountainDetail = ({
           setMountain(m);
         },
         (tx, _) =>
-          Alert.alert('Failed to retrieve data.', JSON.stringify(tx), [
-            {text: 'OK'},
-          ]),
+          Alert.alert(Const.FAILED_MESSAGE_ACQUISITION, JSON.stringify(tx)),
       ),
     [mountainId],
   );
@@ -92,8 +91,7 @@ export const MountainDetail = ({
     updateMountain(
       {...mountain, id: mountainId},
       () => setEditDisabled(true),
-      (tx, _) =>
-        Alert.alert('Update failed.', JSON.stringify(tx), [{text: 'OK'}]),
+      (tx, _) => Alert.alert(Const.FAILED_MESSAGE_UPDATE, JSON.stringify(tx)),
     );
 
   /**
@@ -109,7 +107,7 @@ export const MountainDetail = ({
       <ScrollView>
         <MountainForm
           mountain={mountain}
-          handleValueChange={m => setMountain(m)}
+          handleValueChange={setMountain}
           disabled={editDisabled}
           hasError={setSaveDisabled}
         />
@@ -117,7 +115,7 @@ export const MountainDetail = ({
 
       {/* 登録確認ダイアログ */}
       <ConfirmDialog
-        title="Would you like to save?"
+        title={Const.CONFIRM_MESSAGE_UPDATE}
         visible={visible}
         setVisible={setVisible}
         okCallback={okCallback}

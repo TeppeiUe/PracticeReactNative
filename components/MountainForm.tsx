@@ -5,6 +5,7 @@ import {Input, CheckBox, useTheme, Chip} from '@rneui/themed';
 import {MultiSelect} from 'react-native-element-dropdown';
 import {Linking, StyleSheet, View} from 'react-native';
 import {checkPositiveNumber} from '../utils/validation';
+import Const from '../utils/Const';
 
 /**
  * 山フォームコンポーネントのプロパティ
@@ -54,22 +55,22 @@ export const MountainForm: FC<MountainFormProps> = props => {
   /**
    * バリデーションチェック
    */
-  const validationCheck = (mountain: Omit<Mountains, 'id'>) => {
-    const {name, kana, latitude, longitude} = mountain;
+  const validationCheck = (m: Omit<Mountains, 'id'>) => {
+    const {name, kana, latitude, longitude} = m;
     validation.current = {
-      name: name ? '' : 'required fields',
+      name: name ? '' : Const.VALIDATION_MESSAGE_REQUIRED,
       kana:
         !kana || new RegExp(/^[ぁ-ん]+$/u).test(kana)
           ? ''
-          : 'invalid value',
+          : Const.VALIDATION_MESSAGE_INVALID,
       latitude:
         latitude === null || checkPositiveNumber(String(latitude))
           ? ''
-          : 'invalid value',
+          : Const.VALIDATION_MESSAGE_INVALID,
       longitude:
         longitude === null || checkPositiveNumber(String(longitude))
           ? ''
-          : 'invalid value',
+          : Const.VALIDATION_MESSAGE_INVALID,
     };
   };
 

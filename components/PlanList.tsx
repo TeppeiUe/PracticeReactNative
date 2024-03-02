@@ -11,6 +11,7 @@ import {PlanStackParamList} from '../navigator/PlanStackNavigator';
 import {useMountainIdContext} from '../hooks/MountainIdContext';
 import {HeaderRegisterButton} from './HeaderButtons';
 import {getPlanList} from '../utils/ClimbingPlanConnection';
+import Const from '../utils/Const';
 
 /**
  * 計画リスト表示コンポーネント
@@ -40,9 +41,7 @@ export const PlanList = ({
         mountainId,
         (_, res) => setPlanList(res.rows.raw()),
         (tx, _) =>
-          Alert.alert('Failed to retrieve data.', JSON.stringify(tx), [
-            {text: 'OK'},
-          ]),
+          Alert.alert(Const.FAILED_MESSAGE_ACQUISITION, JSON.stringify(tx)),
       ),
     [mountainId],
   );

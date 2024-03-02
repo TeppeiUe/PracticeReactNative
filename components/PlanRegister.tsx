@@ -12,6 +12,7 @@ import {MountainTabParamList} from '../navigator/MountainTabNavigator';
 import {RootStackParamList} from '../navigator/RootStackNavigator';
 import {HeaderRegisterButton} from './HeaderButtons';
 import {registerPlan} from '../utils/ClimbingPlanConnection';
+import Const from '../utils/Const';
 
 /**
  * 計画登録ダイアログコンポーネント
@@ -62,8 +63,7 @@ export const PlanRegister = ({
     registerPlan(
       plan,
       () => navigation.goBack(),
-      (tx, _) =>
-        Alert.alert('Registration failed.', JSON.stringify(tx), [{text: 'OK'}]),
+      (tx, _) => Alert.alert(Const.FAILED_MESSAGE_REGISTER, JSON.stringify(tx)),
     );
 
   return (
@@ -79,7 +79,7 @@ export const PlanRegister = ({
 
       {/* 登録確認ダイアログ */}
       <ConfirmDialog
-        title="Would you like to register?"
+        title={Const.CONFIRM_MESSAGE_REGISTER}
         visible={registerVisible}
         setVisible={setRegisterVisible}
         okCallback={handleSaveClick}

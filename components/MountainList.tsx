@@ -9,6 +9,7 @@ import {useMountainIdContext} from '../hooks/MountainIdContext';
 import {useFocusEffect} from '@react-navigation/native';
 import {HeaderRegisterButton} from './HeaderButtons';
 import {getMountainList} from '../utils/ClimbingPlanConnection';
+import Const from '../utils/Const';
 
 /**
  * 山リスト表示コンポーネント
@@ -40,9 +41,7 @@ export const MountainList = ({
     getMountainList(
       (_, res) => setMountainList(res.rows.raw()),
       (tx, _) =>
-        Alert.alert('Failed to retrieve data.', JSON.stringify(tx), [
-          {text: 'OK'},
-        ]),
+        Alert.alert(Const.FAILED_MESSAGE_ACQUISITION, JSON.stringify(tx)),
     );
 
   useFocusEffect(useCallback(fetch, []));
