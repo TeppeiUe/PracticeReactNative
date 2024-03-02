@@ -7,13 +7,14 @@ import {
   openDatabase,
 } from 'react-native-sqlite-storage';
 import {Mountains, Plans} from '../models/ClimbingPlan';
+import Const from './Const';
 
 /**
  * DB接続
  */
 const db = openDatabase(
   {
-    name: 'climbingPlan.sqlite3',
+    name: Const.DB_NAME,
     createFromLocation: 1,
   },
   () => {},
