@@ -14,6 +14,7 @@ import {useColorScheme} from 'react-native';
 import {MountainRegister} from '../components/MountainRegister';
 import {HeaderButtonsProvider} from 'react-navigation-header-buttons';
 import {Settings} from '../components/Settings';
+import {Home} from '../components/Home';
 
 /**
  * ルートスタックパラメータ定義
@@ -27,6 +28,8 @@ export type RootStackParamList = {
   MountainTabNavigator: NavigatorScreenParams<MountainTabParamList> & {
     title: string;
   };
+  /** ホーム画面 */
+  Home: undefined;
   /** 設定画面 */
   Settings: undefined;
 };
@@ -41,7 +44,7 @@ export const RootStackNavigator = () => {
   return (
     <NavigationContainer theme={theme === 'dark' ? DarkTheme : DefaultTheme}>
       <HeaderButtonsProvider stackType="native">
-        <RootStack.Navigator initialRouteName="MountainList">
+        <RootStack.Navigator initialRouteName="Home">
           <RootStack.Screen
             name="MountainList"
             component={MountainList}
@@ -56,6 +59,11 @@ export const RootStackNavigator = () => {
             name="MountainTabNavigator"
             component={MountainTabNavigator}
             options={({route}) => ({title: route.params.title})}
+          />
+          <RootStack.Screen
+            name="Home"
+            component={Home}
+            options={{title: 'Home'}}
           />
           <RootStack.Screen
             name="Settings"
