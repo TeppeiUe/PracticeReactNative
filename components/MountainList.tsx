@@ -69,10 +69,10 @@ export const MountainList = ({
           <ListItem
             key={mountain.id}
             onPress={() => {
-              setMountainId(mountain.id!);
+              setMountainId(mountain.id);
               navigation.navigate('MountainTabNavigator', {
                 screen: 'MountainDetail',
-                title: mountain.name!,
+                title: mountain.name,
               });
             }}
             bottomDivider>
