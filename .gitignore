@@ -33,7 +33,6 @@ local.properties
 .cxx/
 *.keystore
 !debug.keystore
-android/app/src/main/res/values/keys.xml
 
 # node.js
 #
@@ -68,3 +67,4 @@ yarn-error.log
 
 # tmp
 /android/app/src/main/assets/www/climbingPlan.sqlite3
+.env
