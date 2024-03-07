@@ -7,7 +7,7 @@ import {RootStackParamList} from '../navigator/RootStackNavigator';
 import {useFocusEffect} from '@react-navigation/native';
 import {HeaderRegisterButton} from './HeaderButtons';
 import {registerMountain} from '../utils/ClimbingPlanConnection';
-import {Alert} from 'react-native';
+import {Alert, ScrollView} from 'react-native';
 import Const from '../utils/Const';
 
 /**
@@ -53,12 +53,14 @@ export const MountainRegister = ({
 
   return (
     <>
-      <MountainForm
-        mountain={mountain}
-        handleValueChange={setMountain}
-        disabled={false}
-        hasError={setSaveDisabled}
-      />
+      <ScrollView>
+        <MountainForm
+          mountain={mountain}
+          handleValueChange={setMountain}
+          disabled={false}
+          hasError={setSaveDisabled}
+        />
+      </ScrollView>
 
       {/* 登録確認ダイアログ */}
       <ConfirmDialog

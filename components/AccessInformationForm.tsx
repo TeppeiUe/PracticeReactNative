@@ -1,6 +1,6 @@
-import {FC, useRef, useState} from 'react';
+import {FC, useEffect, useRef, useState} from 'react';
 import {AccessInformation} from '../models/AccessInformation';
-import {ListItem, useTheme, Chip} from '@rneui/themed';
+import {ListItem, useTheme, Chip, Input} from '@rneui/themed';
 import {StyleSheet} from 'react-native';
 import RNDateTimePicker, {
   DateTimePickerEvent,
@@ -66,8 +66,7 @@ const AccessInformationInnerForm: FC<
     if (time === undefined) {
       return date;
     }
-    const regExp = new RegExp(/^\d{2}:\d{2}$/);
-    if (regExp.test(time)) {
+    if (new RegExp(/^\d{2}:\d{2}$/).test(time)) {
       const [hours, minutes] = time.split(':');
       date.setHours(Number(hours));
       date.setMinutes(Number(minutes));
@@ -77,12 +76,15 @@ const AccessInformationInnerForm: FC<
 
   return (
     <>
+      {/* 路線 */}
       <ListItem.Input
         label="route"
         disabled={disabled}
         onChangeText={route => handleInputChange({route})}>
         {accessInformation.route}
       </ListItem.Input>
+
+      {/* 出発地点名 */}
       <ListItem.Input
         label="departure name"
         disabled={disabled}
@@ -92,6 +94,8 @@ const AccessInformationInnerForm: FC<
         }}>
         {accessInformation.departure?.name}
       </ListItem.Input>
+
+      {/* 出発時刻 */}
       <Chip
         icon={{
           name: 'schedule',
@@ -116,6 +120,8 @@ const AccessInformationInnerForm: FC<
           }}
         />
       )}
+
+      {/* 到着地点名 */}
       <ListItem.Input
         label="arrival name"
         disabled={disabled}
@@ -125,6 +131,8 @@ const AccessInformationInnerForm: FC<
         }}>
         {accessInformation.arrival?.name}
       </ListItem.Input>
+
+      {/* 到着時刻 */}
       <Chip
         icon={{
           name: 'schedule',
@@ -149,6 +157,17 @@ const AccessInformationInnerForm: FC<
           }}
         />
       )}
+
+      {/* 備考 */}
+      <Input
+        label="remarks"
+        multiline
+        numberOfLines={3}
+        textAlignVertical="top"
+        disabled={disabled}
+        onChangeText={remarks => handleInputChange({remarks})}>
+        {accessInformation.remarks}
+      </Input>
     </>
   );
 };
@@ -202,6 +221,12 @@ export const AccessInformationForm: FC<
     }
   };
 
+  useEffect(() => {
+    if (disabled) {
+      setExpandedItems([]);
+    }
+  }, [disabled]);
+
   return (
     <>
       {props.accessInformation.map((a, i) => (
@@ -217,7 +242,11 @@ export const AccessInformationForm: FC<
           content={
             <ListItem.Content>
               <ListItem.Title>
-                {`${a.departure?.name ?? ''} -> ${a.arrival?.name ?? ''}`}
+                {a.departure?.name ?? '-'}
+                {`(${a.departure?.time ?? '-'})`}
+                {' -> '}
+                {a.arrival?.name ?? ''}
+                {`(${a.arrival?.time ?? '-'})`}
               </ListItem.Title>
               <ListItem.Subtitle>{a.route ?? ''}</ListItem.Subtitle>
             </ListItem.Content>

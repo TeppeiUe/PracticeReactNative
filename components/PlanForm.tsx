@@ -158,6 +158,17 @@ export const PlanForm: FC<PlanFormProps> = props => {
         }}
         disabled={disabled}
       />
+
+      {/* 備考 */}
+      <Input
+        label="remarks"
+        multiline
+        numberOfLines={5}
+        textAlignVertical="top"
+        disabled={disabled}
+        onChangeText={remarks => handleInputChange({remarks})}>
+        {plan.remarks}
+      </Input>
     </>
   );
 };

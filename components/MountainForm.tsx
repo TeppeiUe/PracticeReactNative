@@ -189,6 +189,17 @@ export const MountainForm: FC<MountainFormProps> = props => {
         }}
         disabled={disabled}
       />
+
+      {/* 備考 */}
+      <Input
+        label="remarks"
+        multiline
+        numberOfLines={5}
+        textAlignVertical="top"
+        disabled={disabled}
+        onChangeText={remarks => handleInputChange({remarks})}>
+        {mountain.remarks}
+      </Input>
     </>
   );
 };
