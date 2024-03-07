@@ -1,4 +1,4 @@
-import {useEffect, useState} from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import {Alert, PermissionsAndroid, Platform, StyleSheet} from 'react-native';
 import MapView, {Callout, LatLng, Marker} from 'react-native-maps';
 import {getMountainList} from '../utils/ClimbingPlanConnection';
@@ -12,6 +12,9 @@ import GetLocation from 'react-native-get-location';
 import {Forecast5} from '../models/OpenWeatherMap';
 import {getForeCast} from '../utils/OpenWeatherMapConnection';
 import {Dropdown} from 'react-native-element-dropdown';
+import {useFocusEffect} from '@react-navigation/native';
+import {HeaderButtons, HiddenItem} from 'react-navigation-header-buttons';
+import {HeaderOverflowMenu} from './HeaderButtons';
 
 /**
  * ホームコンポーネント
@@ -54,6 +57,30 @@ export const Home = ({
     ];
     return `${yyyy}/${mm}/${dd} ${hh}:00 (${www})`;
   };
+
+  // ヘッダ情報の設定
+  useFocusEffect(
+    useCallback(
+      () =>
+        navigation.setOptions({
+          headerRight: () => (
+            <HeaderButtons>
+              <HeaderOverflowMenu>
+                <HiddenItem
+                  title="Settings"
+                  onPress={() => navigation.navigate('Settings')}
+                />
+                <HiddenItem
+                  title="Mountain List"
+                  onPress={() => navigation.navigate('MountainList')}
+                />
+              </HeaderOverflowMenu>
+            </HeaderButtons>
+          ),
+        }),
+      [navigation],
+    ),
+  );
 
   // 位置情報取得
   useEffect(() => {
@@ -158,7 +185,6 @@ export const Home = ({
             latitudeDelta: dLatLng,
             longitudeDelta: dLatLng,
           }}>
-
           {/* 山マーカー */}
           {mountainList
             .filter(m => m.latitude && m.longitude)
@@ -168,17 +194,24 @@ export const Home = ({
                 coordinate={{
                   latitude: mountain.latitude!,
                   longitude: mountain.longitude!,
-                }}
-                title={mountain.name}
-                description={mountain.kana ?? '-'}
-                onPress={() => {
-                  setMountainId(mountain.id);
-                  navigation.navigate('MountainTabNavigator', {
-                    screen: 'MountainDetail',
-                    title: mountain.name,
-                  });
-                }}
-              />
+                }}>
+                <Callout
+                  tooltip
+                  style={{
+                    backgroundColor: theme.colors.background,
+                    ...styles.callOut,
+                  }}
+                  onPress={() => {
+                    setMountainId(mountain.id);
+                    navigation.navigate('MountainTabNavigator', {
+                      screen: 'MountainDetail',
+                      title: mountain.name,
+                    });
+                  }}>
+                  <Text>{mountain.name}</Text>
+                  <Text>{mountain.kana ?? '-'}</Text>
+                </Callout>
+              </Marker>
             ))}
 
           {/* 天気表示マーカー */}

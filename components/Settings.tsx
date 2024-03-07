@@ -49,6 +49,7 @@ export const Settings = ({}: NativeStackScreenProps<
         }}
         type="outline"
         title="Download Sqlite3"
+        disabled={Platform.OS !== 'android'}
         onPress={handleDownloadClick}
       />
     </>
