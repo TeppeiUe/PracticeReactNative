@@ -1,11 +1,12 @@
 import {FC, useRef} from 'react';
 import {Mountains} from '../models/ClimbingPlan';
 import {usePrefecturesContext} from '../hooks/PrefecturesContext';
-import {Input, CheckBox, useTheme, Chip} from '@rneui/themed';
+import {Input, CheckBox, useTheme, Chip, Icon} from '@rneui/themed';
 import {MultiSelect} from 'react-native-element-dropdown';
 import {Linking, StyleSheet, View} from 'react-native';
-import {checkPositiveNumber} from '../utils/validation';
 import Const from '../utils/Const';
+import Geocoder from 'react-native-geocoding';
+import Config from 'react-native-config';
 
 /**
  * 山フォームコンポーネントのプロパティ
@@ -28,13 +29,11 @@ export const MountainForm: FC<MountainFormProps> = props => {
   const {disabled = true, handleValueChange, mountain, hasError} = props;
   const prefectures = usePrefecturesContext();
   const {theme} = useTheme();
+
   /** バリデーション結果格納 */
   const validation = useRef<{
-    [K in keyof Pick<
-      Mountains,
-      'name' | 'kana' | 'latitude' | 'longitude'
-    >]: string;
-  }>({name: '', kana: '', latitude: '', longitude: ''});
+    [K in keyof Pick<Mountains, 'name' | 'kana'>]: string;
+  }>({name: '', kana: ''});
 
   /**
    * 入力情報更新時のコールバック
@@ -56,19 +55,11 @@ export const MountainForm: FC<MountainFormProps> = props => {
    * バリデーションチェック
    */
   const validationCheck = (m: Omit<Mountains, 'id'>) => {
-    const {name, kana, latitude, longitude} = m;
+    const {name, kana} = m;
     validation.current = {
       name: name ? '' : Const.VALIDATION_MESSAGE_REQUIRED,
       kana:
         !kana || new RegExp(/^[ぁ-ん]+$/u).test(kana)
-          ? ''
-          : Const.VALIDATION_MESSAGE_INVALID,
-      latitude:
-        latitude === null || checkPositiveNumber(String(latitude))
-          ? ''
-          : Const.VALIDATION_MESSAGE_INVALID,
-      longitude:
-        longitude === null || checkPositiveNumber(String(longitude))
           ? ''
           : Const.VALIDATION_MESSAGE_INVALID,
     };
@@ -77,13 +68,35 @@ export const MountainForm: FC<MountainFormProps> = props => {
   /**
    * リンクを開く
    */
-  const openURL = async (
-    latitude: Mountains['latitude'],
-    longitude: Mountains['longitude'],
-  ) => {
+  const openURL = async () => {
+    const {latitude, longitude} = mountain;
     if (latitude !== null && longitude !== null) {
-      const url = `https://maps.google.co.jp/maps?q=${latitude},${longitude}&t=p`;
+      const query = new URLSearchParams({
+        q: `${latitude},${longitude}`,
+        t: 'p',
+      });
+      const url = `https://maps.google.co.jp/maps?${query}`;
       await Linking.openURL(url).catch(e => console.error(JSON.stringify(e)));
+    }
+  };
+
+  /**
+   * GeoCoding
+   */
+  const getLatLng = async () => {
+    const apiKey = Config.GOOGLE_MAPS_API_KEY;
+    const {name} = mountain;
+    if (name !== null && name !== '' && apiKey !== undefined) {
+      Geocoder.init(apiKey);
+      Geocoder.from(name)
+        .then(json => {
+          const {location} = json.results[0].geometry;
+          handleInputChange({
+            latitude: location.lat,
+            longitude: location.lng,
+          });
+        })
+        .catch(error => console.warn(error));
     }
   };
 
@@ -92,6 +105,14 @@ export const MountainForm: FC<MountainFormProps> = props => {
       {/* 山名 */}
       <Input
         label="name*"
+        rightIcon={
+          <Icon
+            name="search"
+            disabled={disabled}
+            disabledStyle={styles.disabledStyle}
+            onPress={getLatLng}
+          />
+        }
         disabled={disabled}
         onChangeText={name => handleInputChange({name})}
         errorMessage={validation.current.name}>
@@ -107,32 +128,6 @@ export const MountainForm: FC<MountainFormProps> = props => {
         {mountain.kana}
       </Input>
 
-      {/* 経度 */}
-      {!disabled && (
-        <Input
-          label="latitude"
-          disabled={disabled}
-          onChangeText={t =>
-            handleInputChange({latitude: t === '' ? null : Number(t)})
-          }
-          errorMessage={validation.current.latitude}>
-          {mountain.latitude}
-        </Input>
-      )}
-
-      {/* 緯度 */}
-      {!disabled && (
-        <Input
-          label="longitude"
-          disabled={disabled}
-          onChangeText={t =>
-            handleInputChange({longitude: t === '' ? null : Number(t)})
-          }
-          errorMessage={validation.current.longitude}>
-          {mountain.longitude}
-        </Input>
-      )}
-
       {/* URIリンク */}
       {mountain.latitude !== null && mountain.longitude !== null && (
         <Chip
@@ -142,7 +137,7 @@ export const MountainForm: FC<MountainFormProps> = props => {
           }}
           type="outline"
           title="Google Map"
-          onPress={() => openURL(mountain.latitude, mountain.longitude)}
+          onPress={openURL}
         />
       )}
 
@@ -205,6 +200,9 @@ export const MountainForm: FC<MountainFormProps> = props => {
 };
 
 const styles = StyleSheet.create({
+  disabledStyle: {
+    backgroundColor: 'transparent',
+  },
   container: {
     width: '100%',
     paddingHorizontal: 10,
